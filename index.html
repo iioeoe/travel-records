@@ -1236,7 +1236,12 @@ function loadSyncConfig(){
 }
 function saveSyncConfig(cfg){localStorage.setItem(SYNC_KEY,JSON.stringify(cfg));}
 function clearSyncConfig(){localStorage.removeItem(SYNC_KEY);}
+const DEFAULT_SYNC_CONFIG={apiKey:"$2a$10$5M47Az7zQLXRpS/JJrVwYOwsPFBF2JU7s/HmOmDUY52nOqVH9qR3O",binId:"6a33ccbdda38895dfed67133"};
 let syncConfig=loadSyncConfig();
+if(!syncConfig){
+  syncConfig={...DEFAULT_SYNC_CONFIG};
+  saveSyncConfig(syncConfig);
+}
 
 function openSyncModal(){renderSyncModal();document.getElementById("syncOverlay").classList.add("open");}
 function closeSyncModal(){document.getElementById("syncOverlay").classList.remove("open");}

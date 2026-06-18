@@ -259,7 +259,7 @@ a{color:inherit;}
 }
 .flights-toolbar input::placeholder{color:var(--ink-faint);}
 
-.bp-wrap{background:var(--bg);padding:14px 0 16px;display:flex;flex-wrap:wrap;gap:16px;justify-content:center;}
+.bp-wrap{background:var(--bg);padding:14px 0 16px;display:flex;flex-wrap:wrap;align-items:flex-start;gap:16px;justify-content:center;}
 .boarding-pass{
   --ac:#1B2A4A;--ac2:#2C4368;
   width:280px;background:var(--surface);border-radius:var(--radius-md);overflow:hidden;
@@ -275,13 +275,13 @@ a{color:inherit;}
 .bp-row label{width:46px;flex:0 0 auto;color:var(--ink-faint);font-size:9.5px;letter-spacing:1px;}
 .bp-row span{color:var(--ink);font-weight:700;font-size:13px;letter-spacing:.3px;word-break:break-word;}
 .bp-seatbox{
-  margin:6px 16px 0px;background:var(--seatbg,var(--stamp-soft));border:1.5px solid var(--seatborder,var(--stamp));border-radius:999px;
-  display:flex;align-items:baseline;justify-content:center;gap:8px;padding:9px 14px;
+  margin:6px 16px 0;background:var(--seatbg,var(--stamp-soft));border:1.5px solid var(--seatborder,var(--stamp));border-radius:999px;
+  display:flex;flex-wrap:nowrap;align-items:baseline;justify-content:center;gap:8px;padding:9px 14px;
 }
-.bp-pill-divider{display:inline-block;width:1px;height:16px;background:var(--seatborder,var(--stamp));opacity:.35;transform:translateY(2px);}
-.bp-seg-lbl{font-size:8.5px;letter-spacing:1.5px;color:var(--seatborder,var(--stamp));font-weight:700;font-family:var(--font-mono);}
-.bp-seat-val{font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--seatborder,var(--stamp));}
-.bp-flight-val{font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--seatborder,var(--stamp));letter-spacing:.3px;}
+.bp-pill-divider{display:inline-block;width:1px;height:16px;background:var(--seatborder,var(--stamp));opacity:.35;transform:translateY(2px);flex:0 0 auto;}
+.bp-seg-lbl{font-size:8.5px;letter-spacing:1.5px;color:var(--seatborder,var(--stamp));font-weight:700;font-family:var(--font-mono);white-space:nowrap;}
+.bp-seat-val{font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--seatborder,var(--stamp));white-space:nowrap;}
+.bp-flight-val{font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--seatborder,var(--stamp));letter-spacing:.3px;white-space:nowrap;}
 .bp-divider{
   position:relative;height:1px;margin:50px 16px 0;
   background-image:linear-gradient(90deg,var(--line) 60%,transparent 0%);
@@ -793,7 +793,7 @@ document.getElementById("panelCloseBtn").addEventListener("click",()=>tripPanel.
 function boardingPassHTML(f,trip){
   const brand=AIRLINES[f.airline]||DEFAULT_AIRLINE;
   const dateStr=f.depDate?fmtBoardingDate(f.depDate):(trip.start?fmtBoardingDate(trip.start):"");
-  const seatVal=f.seatNo||f.seatClass||"-";
+  const seatVal=f.seatNo||"";
   const seatVars=brand.seatBg?`--seatbg:${brand.seatBg};--seatborder:${brand.seatBorder};`:"";
   return `<div class="boarding-pass" style="--ac:${brand.c1};--ac2:${brand.c2};${seatVars}">
     <div class="bp-top"><span class="bp-tag">✈ BOARDING PASS</span></div>
@@ -811,7 +811,7 @@ function boardingPassHTML(f,trip){
     </div>
     <div class="bp-divider"></div>
     <div class="bp-foot">
-      <span class="bp-tkno">${escapeHtml(f.reservationNo||"")}${f.seatNo&&f.seatClass?" · "+escapeHtml(f.seatClass):""}</span>
+      <span class="bp-tkno">${escapeHtml(f.reservationNo||"")}${f.seatClass?" · "+escapeHtml(f.seatClass):""}</span>
     </div>
     <div class="bp-brand-strip">
       <span class="bp-monogram">${escapeHtml((f.airline||"?").slice(0,1))}</span>

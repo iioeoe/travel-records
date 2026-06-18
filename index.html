@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>TRAVEL LOG · 나의 여행 기록</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --bg:#FAF6EF;
+  --bg-deep:#F2ECDD;
+  --surface:#FFFFFF;
+  --surface-soft:#FFFDF8;
+  --ink:#1B2A4A;
+  --ink-soft:#5B6B85;
+  --ink-faint:#93A0B5;
+  --line:#E7DFCE;
+  --gold:#C9A227;
+  --stamp:#B5483D;
+  --stamp-soft:rgba(181,72,61,.16);
+  --stamp-soft-2:rgba(181,72,61,.28);
+  --radius-lg:22px;
+  --radius-md:16px;
+  --radius-sm:10px;
+  --shadow-sm:0 2px 10px rgba(27,42,74,.06);
+  --shadow-md:0 10px 30px rgba(27,42,74,.10);
+  --font-display:'Fraunces',serif;
+  --font-body:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-mono:'Space Mono',monospace;
+  --tabbar-h:64px;
+  --topbar-h:88px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--font-body);-webkit-font-smoothing:antialiased;}
+body{overscroll-behavior-y:none;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+h1,h2,h3{font-family:var(--font-display);margin:0;letter-spacing:.2px;}
+a{color:inherit;}
+
+/* ============ APP SHELL ============ */
+#app{position:fixed;inset:0;display:flex;flex-direction:column;}
+
+.topbar{
+  height:var(--topbar-h);
+  background:linear-gradient(180deg,var(--ink) 0%,#233857 100%);
+  color:#F4EFE2;
+  flex:0 0 auto;
+  display:flex;align-items:center;
+  padding:0 18px;
+  position:relative;
+  overflow:hidden;
+}
+.topbar::after{
+  content:"";position:absolute;inset:0;
+  background-image:radial-gradient(circle at 90% 20%, rgba(255,255,255,.07) 0, transparent 45%),
+                    radial-gradient(circle at 15% 90%, rgba(255,255,255,.05) 0, transparent 40%);
+}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;width:100%;position:relative;z-index:1;}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand-mark{
+  width:42px;height:42px;border-radius:50%;
+  border:1.5px dashed rgba(244,239,226,.55);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;transform:rotate(-8deg);
+  flex:0 0 auto;
+}
+.brand h1{font-size:19px;font-weight:600;letter-spacing:1.5px;}
+.brand-sub{margin:2px 0 0;font-size:11.5px;color:#C9C2AC;letter-spacing:.3px;}
+.topbar-stat{text-align:right;font-family:var(--font-mono);}
+.topbar-stat span{font-size:22px;font-weight:700;color:var(--gold);}
+.topbar-stat small{display:block;font-size:10px;color:#C9C2AC;letter-spacing:1px;margin-top:-2px;}
+
+.view-area{flex:1 1 auto;position:relative;overflow:hidden;}
+.view{position:absolute;inset:0;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.view.active{display:block;}
+
+.tabbar{
+  flex:0 0 auto;height:var(--tabbar-h);
+  background:var(--surface);
+  border-top:1px solid var(--line);
+  display:flex;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.tab-btn{
+  flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  color:var(--ink-faint);font-size:11px;font-weight:600;letter-spacing:.2px;
+  transition:color .15s;
+}
+.tab-btn span{font-size:18px;}
+.tab-btn.active{color:var(--stamp);}
+
+.fab{
+  position:absolute;right:18px;bottom:calc(var(--tabbar-h) + 18px + env(safe-area-inset-bottom));
+  width:54px;height:54px;border-radius:50%;
+  background:var(--stamp);color:#fff;border:none;
+  font-size:26px;font-weight:300;
+  box-shadow:var(--shadow-md);
+  display:flex;align-items:center;justify-content:center;
+  z-index:50;
+  transition:transform .15s;
+}
+.fab:active{transform:scale(.92);}
+
+/* ============ DESKTOP / TABLET LAYOUT ============ */
+@media (min-width:768px){
+  #app{flex-direction:row;}
+  .topbar{
+    position:fixed;top:0;left:0;right:0;height:64px;z-index:30;
+  }
+  .view-area{margin-top:64px;height:calc(100% - 64px);width:100%;}
+  .tabbar{
+    position:fixed;left:0;top:64px;bottom:0;width:92px;height:auto;
+    flex-direction:column;border-top:none;border-right:1px solid var(--line);
+    padding-top:14px;padding-bottom:0;
+  }
+  .tab-btn{flex:0 0 auto;padding:16px 0;}
+  .view-area{margin-left:92px;width:calc(100% - 92px);}
+  .fab{right:34px;bottom:34px;}
+}
+
+/* ============ STAMP BADGE (signature element) ============ */
+.stamp{
+  border-radius:50%;border:2px dashed var(--stamp);
+  color:var(--stamp);display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-weight:700;
+  background:var(--stamp-soft);
+  transform:rotate(-7deg);
+  text-align:center;line-height:1.1;
+}
+
+/* ============ MAP VIEW ============ */
+#view-map{padding:0;}
+#map{position:absolute;inset:0;background:#EFE9DA;}
+.leaflet-container{font-family:var(--font-body);background:#EFE9DA;}
+.map-legend{
+  position:absolute;top:14px;left:14px;z-index:20;
+  background:rgba(255,253,248,.92);backdrop-filter:blur(6px);
+  border:1px solid var(--line);border-radius:999px;
+  padding:8px 16px;font-size:12.5px;color:var(--ink-soft);
+  box-shadow:var(--shadow-sm);
+}
+.map-legend strong{color:var(--stamp);font-family:var(--font-mono);font-size:13.5px;}
+
+.plane-icon{
+  width:30px;height:30px;border-radius:50%;
+  background:var(--surface);border:2px solid var(--stamp);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;box-shadow:var(--shadow-sm);
+  transform:rotate(-15deg);
+}
+
+.trip-panel{
+  position:absolute;left:0;right:0;bottom:0;
+  max-height:78%;background:var(--bg);
+  border-radius:22px 22px 0 0;
+  box-shadow:0 -10px 30px rgba(27,42,74,.18);
+  transform:translateY(105%);transition:transform .28s ease;
+  z-index:40;overflow-y:auto;padding:10px 18px 28px;
+}
+.trip-panel.open{transform:translateY(0);}
+.panel-handle{width:40px;height:4px;background:var(--line);border-radius:4px;margin:6px auto 14px;}
+.panel-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;color:var(--ink-faint);}
+
+@media (min-width:768px){
+  .trip-panel{
+    left:auto;right:0;top:0;bottom:0;width:380px;max-height:none;
+    border-radius:0;transform:translateX(105%);
+    box-shadow:-10px 0 30px rgba(27,42,74,.12);
+    padding:20px 22px 28px;
+  }
+  .trip-panel.open{transform:translateX(0);}
+  .panel-handle{display:none;}
+}
+
+/* ============ TIMELINE VIEW ============ */
+.page-pad{padding:18px;max-width:760px;margin:0 auto;}
+.empty-state{
+  text-align:center;padding:60px 24px;color:var(--ink-faint);
+}
+.empty-state .stamp{width:64px;height:64px;font-size:22px;margin:0 auto 16px;}
+.empty-state h3{color:var(--ink-soft);font-size:16px;margin-bottom:6px;}
+.empty-state p{font-size:13px;margin:0;}
+
+.year-heading{
+  display:flex;align-items:baseline;gap:10px;margin:28px 0 14px;
+}
+.year-heading:first-child{margin-top:4px;}
+.year-heading .num{font-family:var(--font-display);font-size:34px;font-weight:600;color:var(--ink);}
+.year-heading .cnt{font-size:12px;color:var(--ink-faint);font-family:var(--font-mono);}
+.year-heading::after{content:"";flex:1;height:1px;background:var(--line);}
+
+.trip-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);
+  padding:14px;display:flex;gap:12px;margin-bottom:10px;box-shadow:var(--shadow-sm);
+  transition:transform .12s;
+}
+.trip-card:active{transform:scale(.985);}
+.trip-thumb{
+  width:54px;height:54px;border-radius:14px;flex:0 0 auto;
+  background:var(--stamp-soft);display:flex;align-items:center;justify-content:center;
+  overflow:hidden;font-size:22px;
+}
+.trip-thumb img{width:100%;height:100%;object-fit:cover;}
+.trip-info{flex:1;min-width:0;}
+.trip-info .place{font-weight:700;font-size:15px;}
+.trip-info .place small{font-weight:500;color:var(--ink-faint);font-size:12px;}
+.trip-info .dates{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+.trip-info .meta-row{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.tag{
+  font-size:10.5px;padding:2px 8px;border-radius:999px;background:var(--bg-deep);color:var(--ink-soft);
+  font-weight:600;
+}
+.stars{color:var(--gold);font-size:12px;letter-spacing:1px;}
+
+/* ============ STATS VIEW ============ */
+.hero-stat{
+  background:linear-gradient(135deg,var(--ink) 0%,#2C4368 100%);
+  color:#F4EFE2;border-radius:var(--radius-lg);padding:26px 22px;
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;
+  position:relative;overflow:hidden;
+}
+.hero-stat::after{content:"✈";position:absolute;right:-10px;bottom:-22px;font-size:110px;opacity:.07;transform:rotate(-15deg);}
+.hero-stat .big{font-family:var(--font-display);font-size:48px;font-weight:700;line-height:1;}
+.hero-stat .lbl{font-size:12px;color:#C9C2AC;letter-spacing:1px;margin-top:6px;}
+.hero-stat .stamp{width:60px;height:60px;font-size:11px;border-color:var(--gold);color:var(--gold);background:rgba(201,162,39,.12);}
+
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px;}
+.stat-box{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);
+  padding:16px;box-shadow:var(--shadow-sm);
+}
+.stat-box .val{font-family:var(--font-mono);font-size:24px;font-weight:700;color:var(--stamp);}
+.stat-box .lbl{font-size:11.5px;color:var(--ink-soft);margin-top:4px;}
+
+.chart-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);
+  padding:18px;margin-bottom:16px;box-shadow:var(--shadow-sm);
+}
+.chart-card h3{font-size:14px;font-family:var(--font-body);font-weight:700;margin-bottom:12px;color:var(--ink-soft);letter-spacing:.3px;}
+.chart-card canvas{max-height:220px;}
+
+/* ============ FLIGHTS VIEW ============ */
+.flights-toolbar{padding:16px 18px 0;max-width:760px;margin:0 auto;}
+.flights-toolbar input{
+  width:100%;padding:11px 16px;border-radius:999px;border:1px solid var(--line);
+  background:var(--surface);font-size:13.5px;color:var(--ink);
+}
+.flights-toolbar input::placeholder{color:var(--ink-faint);}
+
+.bp-wrap{background:var(--bg);padding:4px 0 16px;}
+.boarding-pass{
+  --ac:#1B2A4A;--ac2:#2C4368;
+  background:var(--surface);border-radius:var(--radius-md);overflow:hidden;
+  box-shadow:var(--shadow-sm);position:relative;border:1px solid var(--line);
+}
+.bp-top{
+  background:linear-gradient(120deg,var(--ac) 0%,var(--ac2) 100%);
+  color:#fff;padding:11px 16px;display:flex;justify-content:space-between;align-items:center;
+}
+.bp-top .bp-brand{font-weight:700;font-size:13.5px;letter-spacing:.3px;}
+.bp-top .bp-tag{font-size:9.5px;letter-spacing:2px;color:rgba(255,255,255,.75);font-family:var(--font-mono);}
+.bp-body{padding:14px 16px 6px;font-family:var(--font-mono);}
+.bp-row{display:flex;gap:10px;padding:4px 0;font-size:12.5px;align-items:baseline;}
+.bp-row label{width:46px;flex:0 0 auto;color:var(--ink-faint);font-size:9.5px;letter-spacing:1px;}
+.bp-row span{color:var(--ink);font-weight:700;font-size:13.5px;letter-spacing:.3px;}
+.bp-divider{
+  position:relative;height:1px;margin:8px 0 0;
+  background-image:linear-gradient(90deg,var(--line) 60%,transparent 0%);
+  background-size:10px 1px;background-repeat:repeat-x;
+}
+.bp-divider::before,.bp-divider::after{
+  content:"";position:absolute;top:-7px;width:14px;height:14px;border-radius:50%;background:var(--bg);
+}
+.bp-divider::before{left:-23px;}
+.bp-divider::after{right:-23px;}
+.bp-foot{display:flex;justify-content:space-between;align-items:center;padding:10px 16px 14px;}
+.bp-seatpill{
+  background:var(--stamp-soft);color:var(--stamp);font-family:var(--font-mono);font-weight:700;
+  font-size:12px;padding:5px 12px;border-radius:999px;
+}
+.bp-tkno{font-family:var(--font-mono);font-size:10.5px;color:var(--ink-faint);}
+.bp-card-margin{margin:0 18px 14px;max-width:724px;}
+@media (min-width:520px){.bp-card-margin{margin:0 auto 14px;}}
+
+/* ============ MODAL / FORM ============ */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(27,42,74,.45);z-index:100;
+  display:none;align-items:flex-end;justify-content:center;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--bg);width:100%;max-width:560px;max-height:92vh;
+  border-radius:22px 22px 0 0;overflow-y:auto;padding:0 0 30px;
+  animation:slideUp .25s ease;
+}
+@keyframes slideUp{from{transform:translateY(40px);opacity:.5;}to{transform:translateY(0);opacity:1;}}
+@media (min-width:768px){
+  .modal-overlay{align-items:center;}
+  .modal{border-radius:var(--radius-lg);max-height:88vh;}
+}
+.modal-head{
+  position:sticky;top:0;background:var(--bg);padding:18px 20px 12px;display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid var(--line);z-index:5;
+}
+.modal-head h2{font-size:18px;}
+.modal-head button{background:none;border:none;font-size:20px;color:var(--ink-faint);}
+.modal-body{padding:18px 20px;}
+
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;letter-spacing:.2px;}
+.field input,.field select,.field textarea{
+  width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:var(--radius-sm);
+  background:var(--surface);font-size:14px;color:var(--ink);
+}
+.field textarea{resize:vertical;min-height:64px;}
+.field-row{display:flex;gap:10px;}
+.field-row .field{flex:1;}
+.hint{font-size:11px;color:var(--ink-faint);margin-top:4px;}
+
+.rating-input{display:flex;gap:6px;font-size:24px;}
+.rating-input button{background:none;border:none;color:var(--line);padding:0;}
+.rating-input button.on{color:var(--gold);}
+
+.section-title{
+  font-size:13px;font-weight:700;color:var(--ink);margin:22px 0 10px;display:flex;align-items:center;gap:8px;
+}
+.section-title::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--stamp);}
+
+.flight-block{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);
+  padding:14px;margin-bottom:12px;position:relative;
+}
+.flight-block .rm-btn{
+  position:absolute;top:10px;right:10px;background:none;border:none;color:var(--ink-faint);font-size:16px;
+}
+.add-flight-btn{
+  width:100%;padding:12px;border:1.5px dashed var(--line);border-radius:var(--radius-sm);
+  background:none;color:var(--ink-soft);font-size:13px;font-weight:600;
+}
+
+.btn-primary{
+  width:100%;padding:14px;border-radius:999px;border:none;background:var(--stamp);color:#fff;
+  font-size:15px;font-weight:700;margin-top:8px;box-shadow:var(--shadow-sm);
+}
+.btn-ghost{
+  width:100%;padding:13px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--ink-soft);
+  font-size:13.5px;font-weight:600;margin-top:8px;
+}
+.photo-preview{
+  width:100%;height:140px;border-radius:var(--radius-md);background:var(--bg-deep);
+  display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:13px;
+  overflow:hidden;margin-bottom:8px;border:1px solid var(--line);
+}
+.photo-preview img{width:100%;height:100%;object-fit:cover;}
+
+/* trip panel detail content reuses some of the above */
+.panel-title{font-size:20px;margin-bottom:2px;}
+.panel-sub{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);margin-bottom:14px;}
+.panel-actions{display:flex;gap:8px;margin-top:18px;}
+.panel-actions button{flex:1;padding:11px;border-radius:999px;font-size:13px;font-weight:700;}
+.btn-edit{border:1px solid var(--line);background:var(--surface);color:var(--ink);}
+.btn-delete{border:none;background:rgba(181,72,61,.1);color:var(--stamp);}
+.detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;}
+.detail-row label{color:var(--ink-faint);}
+.detail-row span{font-weight:600;text-align:right;}
+.memo-box{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:var(--ink-soft);margin-top:10px;line-height:1.5;}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark">✈</div>
+        <div>
+          <h1>TRAVEL LOG</h1>
+          <p class="brand-sub">나의 여행 기록</p>
+        </div>
+      </div>
+      <div class="topbar-stat">
+        <span id="topCountryCount">0</span><small>VISITED COUNTRIES</small>
+      </div>
+    </div>
+  </header>
+
+  <main class="view-area">
+    <section id="view-map" class="view active">
+      <div id="map"></div>
+      <div class="map-legend">방문국가 <strong id="mapCountryCount">0</strong>개국 · 도시 <strong id="mapCityCount">0</strong>곳</div>
+      <div id="tripPanel" class="trip-panel">
+        <div class="panel-handle"></div>
+        <button class="panel-close" id="panelCloseBtn">✕</button>
+        <div id="panelContent"></div>
+      </div>
+    </section>
+
+    <section id="view-timeline" class="view">
+      <div class="page-pad" id="timelineContent"></div>
+    </section>
+
+    <section id="view-stats" class="view">
+      <div class="page-pad" id="statsContent"></div>
+    </section>
+
+    <section id="view-flights" class="view">
+      <div class="flights-toolbar"><input id="flightSearch" placeholder="항공사 · 편명 · 도시 검색"></div>
+      <div class="bp-wrap" id="flightsContent"></div>
+    </section>
+  </main>
+
+  <button class="fab" id="fabAdd" aria-label="여행 추가">+</button>
+
+  <nav class="tabbar">
+    <button class="tab-btn active" data-tab="map"><span>🗺️</span>지도</button>
+    <button class="tab-btn" data-tab="timeline"><span>📅</span>타임라인</button>
+    <button class="tab-btn" data-tab="stats"><span>📊</span>통계</button>
+    <button class="tab-btn" data-tab="flights"><span>🎫</span>항공권</button>
+  </nav>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="modalTitle">여행 추가</h2>
+      <button id="modalCloseBtn">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="tripForm">
+        <div class="field">
+          <label>국가</label>
+          <select id="f_country" required></select>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>도시 / 지역</label>
+            <input id="f_city" type="text" placeholder="예: 도쿄">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>시작일</label>
+            <input id="f_start" type="date" required>
+          </div>
+          <div class="field">
+            <label>종료일</label>
+            <input id="f_end" type="date">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>동행</label>
+            <input id="f_companion" type="text" placeholder="예: 가족, 혼자">
+          </div>
+          <div class="field">
+            <label>목적</label>
+            <select id="f_purpose">
+              <option>여행</option><option>출장</option><option>경유</option><option>유학/연수</option><option>기타</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>정확한 위치 (선택, 비워두면 국가 중심에 표시)</label>
+          <div class="field-row">
+            <input id="f_lat" type="number" step="0.0001" placeholder="위도">
+            <input id="f_lng" type="number" step="0.0001" placeholder="경도">
+          </div>
+        </div>
+        <div class="field">
+          <label>사진</label>
+          <div class="photo-preview" id="photoPreview">사진 없음</div>
+          <input id="f_photo" type="file" accept="image/*">
+        </div>
+        <div class="field">
+          <label>만족도</label>
+          <div class="rating-input" id="ratingInput">
+            <button type="button" data-v="1">★</button><button type="button" data-v="2">★</button>
+            <button type="button" data-v="3">★</button><button type="button" data-v="4">★</button>
+            <button type="button" data-v="5">★</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>메모</label>
+          <textarea id="f_memo" placeholder="여행에 대한 기록을 남겨보세요"></textarea>
+        </div>
+
+        <div class="section-title">항공권</div>
+        <div id="flightsFieldArea"></div>
+        <button type="button" class="add-flight-btn" id="addFlightBtn">+ 항공권 추가</button>
+
+        <button type="submit" class="btn-primary">저장</button>
+        <button type="button" class="btn-ghost" id="cancelBtn">취소</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+/* ====================================================================
+   DATA: countries, airlines
+==================================================================== */
+const COUNTRIES = [
+{code:"KOR",ko:"대한민국",cont:"아시아",lat:35.9,lng:127.8},
+{code:"JPN",ko:"일본",cont:"아시아",lat:36.2,lng:138.3},
+{code:"CHN",ko:"중국",cont:"아시아",lat:35.0,lng:105.0},
+{code:"TWN",ko:"대만",cont:"아시아",lat:23.7,lng:121.0},
+{code:"HKG",ko:"홍콩",cont:"아시아",lat:22.3,lng:114.2},
+{code:"MAC",ko:"마카오",cont:"아시아",lat:22.2,lng:113.5},
+{code:"VNM",ko:"베트남",cont:"아시아",lat:14.1,lng:108.3},
+{code:"THA",ko:"태국",cont:"아시아",lat:15.9,lng:101.0},
+{code:"SGP",ko:"싱가포르",cont:"아시아",lat:1.35,lng:103.82},
+{code:"MYS",ko:"말레이시아",cont:"아시아",lat:4.2,lng:102.0},
+{code:"IDN",ko:"인도네시아",cont:"아시아",lat:-0.8,lng:113.9},
+{code:"PHL",ko:"필리핀",cont:"아시아",lat:12.9,lng:121.8},
+{code:"KHM",ko:"캄보디아",cont:"아시아",lat:12.6,lng:105.0},
+{code:"LAO",ko:"라오스",cont:"아시아",lat:19.9,lng:102.5},
+{code:"MMR",ko:"미얀마",cont:"아시아",lat:21.9,lng:96.0},
+{code:"IND",ko:"인도",cont:"아시아",lat:20.6,lng:79.0},
+{code:"NPL",ko:"네팔",cont:"아시아",lat:28.4,lng:84.1},
+{code:"LKA",ko:"스리랑카",cont:"아시아",lat:7.9,lng:80.8},
+{code:"MDV",ko:"몰디브",cont:"아시아",lat:3.2,lng:73.2},
+{code:"ARE",ko:"아랍에미리트",cont:"아시아",lat:23.4,lng:53.9},
+{code:"QAT",ko:"카타르",cont:"아시아",lat:25.4,lng:51.2},
+{code:"SAU",ko:"사우디아라비아",cont:"아시아",lat:24.0,lng:45.0},
+{code:"TUR",ko:"터키",cont:"유럽",lat:39.0,lng:35.2},
+{code:"ISR",ko:"이스라엘",cont:"아시아",lat:31.0,lng:34.9},
+{code:"JOR",ko:"요르단",cont:"아시아",lat:30.6,lng:36.2},
+{code:"KAZ",ko:"카자흐스탄",cont:"아시아",lat:48.0,lng:66.9},
+{code:"MNG",ko:"몽골",cont:"아시아",lat:46.9,lng:103.8},
+{code:"GBR",ko:"영국",cont:"유럽",lat:55.4,lng:-3.4},
+{code:"FRA",ko:"프랑스",cont:"유럽",lat:46.2,lng:2.2},
+{code:"DEU",ko:"독일",cont:"유럽",lat:51.2,lng:10.5},
+{code:"ITA",ko:"이탈리아",cont:"유럽",lat:41.9,lng:12.6},
+{code:"ESP",ko:"스페인",cont:"유럽",lat:40.5,lng:-3.7},
+{code:"PRT",ko:"포르투갈",cont:"유럽",lat:39.4,lng:-8.2},
+{code:"NLD",ko:"네덜란드",cont:"유럽",lat:52.1,lng:5.3},
+{code:"BEL",ko:"벨기에",cont:"유럽",lat:50.5,lng:4.5},
+{code:"CHE",ko:"스위스",cont:"유럽",lat:46.8,lng:8.2},
+{code:"AUT",ko:"오스트리아",cont:"유럽",lat:47.5,lng:14.6},
+{code:"CZE",ko:"체코",cont:"유럽",lat:49.8,lng:15.5},
+{code:"POL",ko:"폴란드",cont:"유럽",lat:51.9,lng:19.1},
+{code:"GRC",ko:"그리스",cont:"유럽",lat:39.1,lng:21.8},
+{code:"HRV",ko:"크로아티아",cont:"유럽",lat:45.1,lng:15.2},
+{code:"HUN",ko:"헝가리",cont:"유럽",lat:47.2,lng:19.5},
+{code:"IRL",ko:"아일랜드",cont:"유럽",lat:53.4,lng:-8.2},
+{code:"DNK",ko:"덴마크",cont:"유럽",lat:56.3,lng:9.5},
+{code:"SWE",ko:"스웨덴",cont:"유럽",lat:60.1,lng:18.6},
+{code:"NOR",ko:"노르웨이",cont:"유럽",lat:60.5,lng:8.5},
+{code:"FIN",ko:"핀란드",cont:"유럽",lat:61.9,lng:25.7},
+{code:"ISL",ko:"아이슬란드",cont:"유럽",lat:65.0,lng:-19.0},
+{code:"RUS",ko:"러시아",cont:"유럽",lat:61.5,lng:105.3},
+{code:"ROU",ko:"루마니아",cont:"유럽",lat:45.9,lng:25.0},
+{code:"SVN",ko:"슬로베니아",cont:"유럽",lat:46.1,lng:14.8},
+{code:"USA",ko:"미국",cont:"북미",lat:39.8,lng:-100.5},
+{code:"CAN",ko:"캐나다",cont:"북미",lat:56.1,lng:-106.3},
+{code:"MEX",ko:"멕시코",cont:"북미",lat:23.6,lng:-102.5},
+{code:"CUB",ko:"쿠바",cont:"북미",lat:21.5,lng:-77.8},
+{code:"DOM",ko:"도미니카공화국",cont:"북미",lat:18.7,lng:-70.2},
+{code:"BRA",ko:"브라질",cont:"남미",lat:-10.3,lng:-53.2},
+{code:"ARG",ko:"아르헨티나",cont:"남미",lat:-34.8,lng:-64.2},
+{code:"CHL",ko:"칠레",cont:"남미",lat:-35.7,lng:-71.5},
+{code:"PER",ko:"페루",cont:"남미",lat:-9.2,lng:-75.0},
+{code:"COL",ko:"콜롬비아",cont:"남미",lat:4.6,lng:-74.3},
+{code:"EGY",ko:"이집트",cont:"아프리카",lat:26.8,lng:30.8},
+{code:"MAR",ko:"모로코",cont:"아프리카",lat:31.8,lng:-7.1},
+{code:"ZAF",ko:"남아프리카공화국",cont:"아프리카",lat:-30.6,lng:22.9},
+{code:"KEN",ko:"케냐",cont:"아프리카",lat:0.0,lng:37.9},
+{code:"TZA",ko:"탄자니아",cont:"아프리카",lat:-6.4,lng:34.9},
+{code:"AUS",ko:"호주",cont:"오세아니아",lat:-25.3,lng:133.8},
+{code:"NZL",ko:"뉴질랜드",cont:"오세아니아",lat:-40.9,lng:174.9},
+{code:"FJI",ko:"피지",cont:"오세아니아",lat:-17.7,lng:178.1},
+{code:"PYF",ko:"프랑스령 폴리네시아",cont:"오세아니아",lat:-17.7,lng:-149.4},
+];
+const CONTINENT_ORDER=["아시아","유럽","북미","남미","아프리카","오세아니아"];
+
+const AIRLINES = {
+  "대한항공":{c1:"#0A3370",c2:"#163E7B"},
+  "아시아나항공":{c1:"#7A0C2E",c2:"#A1123E"},
+  "제주항공":{c1:"#FF5C00",c2:"#FF7E33"},
+  "진에어":{c1:"#1B2A4A",c2:"#3A4F78",text:"#FFCD00"},
+  "티웨이항공":{c1:"#C8102E",c2:"#E0334F"},
+  "에어부산":{c1:"#003876",c2:"#0058B0"},
+  "에어서울":{c1:"#00AEEF",c2:"#3FC4F0"},
+  "ANA":{c1:"#13448F",c2:"#2C5DA8"},
+  "JAL":{c1:"#D7000F",c2:"#E8334A"},
+  "캐세이패시픽":{c1:"#006564",c2:"#0C8584"},
+  "싱가포르항공":{c1:"#003876",c2:"#0A4A95"},
+  "에미레이트항공":{c1:"#D71921",c2:"#E8424A"},
+  "카타르항공":{c1:"#5C0632",c2:"#7E1248"},
+  "델타항공":{c1:"#003366",c2:"#10497E"},
+  "유나이티드항공":{c1:"#005DAA",c2:"#1C75C0"},
+  "루프트한자":{c1:"#05164D",c2:"#1B2E66",text:"#F9BA00"},
+  "에어프랑스":{c1:"#002157",c2:"#15356E"},
+  "영국항공":{c1:"#075AAA",c2:"#1B6FBE"},
+  "터키항공":{c1:"#C70A0C",c2:"#E13234"},
+  "핀에어":{c1:"#0F1689",c2:"#2A33A0"},
+};
+const DEFAULT_AIRLINE={c1:"#1B2A4A",c2:"#2C4368"};
+
+/* ====================================================================
+   STORAGE
+==================================================================== */
+const STORE_KEY="travelLogData_v1";
+function loadData(){
+  try{const raw=localStorage.getItem(STORE_KEY);return raw?JSON.parse(raw):{trips:[]};}
+  catch(e){return {trips:[]};}
+}
+function saveData(){localStorage.setItem(STORE_KEY,JSON.stringify(state));}
+let state=loadData();
+
+function countryInfo(code){return COUNTRIES.find(c=>c.code===code);}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+
+/* ====================================================================
+   TAB NAVIGATION
+==================================================================== */
+const views=document.querySelectorAll(".view");
+const tabBtns=document.querySelectorAll(".tab-btn");
+let charts={};
+tabBtns.forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    tabBtns.forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    views.forEach(v=>v.classList.remove("active"));
+    document.getElementById("view-"+btn.dataset.tab).classList.add("active");
+    if(btn.dataset.tab==="timeline")renderTimeline();
+    if(btn.dataset.tab==="stats")renderStats();
+    if(btn.dataset.tab==="flights")renderFlights();
+    if(btn.dataset.tab==="map" && map)setTimeout(()=>map.invalidateSize(),50);
+  });
+});
+
+/* ====================================================================
+   MAP
+==================================================================== */
+let map,geoLayer,markersLayer;
+function initMap(){
+  map=L.map("map",{zoomControl:true,attributionControl:false}).setView([20,20],2);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{maxZoom:18}).addTo(map);
+  markersLayer=L.layerGroup().addTo(map);
+  fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json")
+    .then(r=>r.json())
+    .then(geo=>{
+      geoLayer=L.geoJSON(geo,{style:styleCountry}).addTo(map);
+      geoLayer.bringToBack();
+    })
+    .catch(()=>{});
+}
+function visitedCodes(){return [...new Set(state.trips.map(t=>t.countryCode))];}
+function styleCountry(feature){
+  const visited=visitedCodes().includes(feature.id);
+  return {
+    fillColor:visited?"#B5483D":"#FFFFFF",
+    fillOpacity:visited?0.45:0.4,
+    color:visited?"#B5483D":"#D8D0BD",
+    weight:visited?1.4:0.6,
+  };
+}
+function refreshMapStyle(){if(geoLayer)geoLayer.setStyle(styleCountry);}
+
+function renderMarkers(){
+  markersLayer.clearLayers();
+  state.trips.forEach(trip=>{
+    const ci=countryInfo(trip.countryCode);
+    const lat=trip.lat!=null?trip.lat:(ci?ci.lat:0);
+    const lng=trip.lng!=null?trip.lng:(ci?ci.lng:0);
+    const icon=L.divIcon({className:"",html:'<div class="plane-icon">✈️</div>',iconSize:[30,30],iconAnchor:[15,15]});
+    const marker=L.marker([lat,lng],{icon}).addTo(markersLayer);
+    marker.on("click",()=>openTripPanel(trip.id));
+  });
+}
+
+function updateCounters(){
+  const codes=visitedCodes();
+  document.getElementById("topCountryCount").textContent=codes.length;
+  document.getElementById("mapCountryCount").textContent=codes.length;
+  document.getElementById("mapCityCount").textContent=new Set(state.trips.map(t=>t.city||t.countryCode)).size;
+}
+
+function refreshAll(){
+  saveData();
+  updateCounters();
+  refreshMapStyle();
+  renderMarkers();
+}
+
+/* ---- trip detail panel ---- */
+const tripPanel=document.getElementById("tripPanel");
+function openTripPanel(tripId){
+  const trip=state.trips.find(t=>t.id===tripId);
+  if(!trip)return;
+  const ci=countryInfo(trip.countryCode);
+  let html=`<h3 class="panel-title">${ci?ci.ko:trip.countryCode}${trip.city?" · "+trip.city:""}</h3>
+  <div class="panel-sub">${fmtRange(trip.start,trip.end)}</div>`;
+  html+=detailRows(trip);
+  if(trip.memo)html+=`<div class="memo-box">${escapeHtml(trip.memo)}</div>`;
+  if(trip.photo)html+=`<div class="photo-preview" style="margin-top:12px;height:160px;"><img src="${trip.photo}"></div>`;
+  (trip.flights||[]).forEach(f=>{html+=`<div style="margin-top:14px;">${boardingPassHTML(f,trip)}</div>`;});
+  html+=`<div class="panel-actions">
+    <button class="btn-edit" onclick="editTrip('${trip.id}')">수정</button>
+    <button class="btn-delete" onclick="deleteTrip('${trip.id}')">삭제</button>
+  </div>`;
+  document.getElementById("panelContent").innerHTML=html;
+  tripPanel.classList.add("open");
+}
+function detailRows(trip){
+  let rows="";
+  if(trip.companion)rows+=row("동행",trip.companion);
+  rows+=row("목적",trip.purpose||"여행");
+  if(trip.rating)rows+=row("만족도","★".repeat(trip.rating)+"☆".repeat(5-trip.rating));
+  return rows?`<div style="margin-top:10px;">${rows}</div>`:"";
+}
+function row(l,v){return `<div class="detail-row"><label>${l}</label><span>${escapeHtml(String(v))}</span></div>`;}
+document.getElementById("panelCloseBtn").addEventListener("click",()=>tripPanel.classList.remove("open"));
+
+function boardingPassHTML(f,trip){
+  const brand=AIRLINES[f.airline]||DEFAULT_AIRLINE;
+  const dateStr=trip.start?fmtDateShort(trip.start):"";
+  return `<div class="boarding-pass" style="--ac:${brand.c1};--ac2:${brand.c2};">
+    <div class="bp-top"><span class="bp-brand">${escapeHtml(f.airline||"항공권")}</span><span class="bp-tag">BOARDING PASS</span></div>
+    <div class="bp-body">
+      <div class="bp-row"><label>FROM</label><span>${escapeHtml(f.from||"-")}</span></div>
+      <div class="bp-row"><label>TO</label><span>${escapeHtml(f.to||"-")}</span></div>
+      <div class="bp-row"><label>FLIGHT</label><span>${escapeHtml(f.flightNo||"-")} · ${dateStr}</span></div>
+    </div>
+    <div class="bp-divider"></div>
+    <div class="bp-foot">
+      <span class="bp-tkno">${escapeHtml(f.reservationNo||"")}</span>
+      <span class="bp-seatpill">${escapeHtml(f.seatClass||"일반석")}</span>
+    </div>
+  </div>`;
+}
+
+/* ====================================================================
+   TIMELINE
+==================================================================== */
+function renderTimeline(){
+  const el=document.getElementById("timelineContent");
+  if(state.trips.length===0){el.innerHTML=emptyState("아직 기록된 여행이 없어요","오른쪽 하단 + 버튼으로 첫 여행을 남겨보세요");return;}
+  const sorted=[...state.trips].sort((a,b)=>new Date(b.start)-new Date(a.start));
+  const byYear={};
+  sorted.forEach(t=>{const y=(t.start||"").slice(0,4)||"기타";(byYear[y]=byYear[y]||[]).push(t);});
+  let html="";
+  Object.keys(byYear).sort((a,b)=>b-a).forEach(y=>{
+    html+=`<div class="year-heading"><span class="num">${y}</span><span class="cnt">${byYear[y].length}건</span></div>`;
+    byYear[y].forEach(t=>{html+=tripCardHTML(t);});
+  });
+  el.innerHTML=html;
+}
+function tripCardHTML(t){
+  const ci=countryInfo(t.countryCode);
+  const thumb=t.photo?`<img src="${t.photo}">`:"🗺️";
+  return `<div class="trip-card" onclick="openTripFromTimeline('${t.id}')">
+    <div class="trip-thumb">${thumb}</div>
+    <div class="trip-info">
+      <div class="place">${ci?ci.ko:t.countryCode}<small> ${t.city?("· "+escapeHtml(t.city)):""}</small></div>
+      <div class="dates">${fmtRange(t.start,t.end)}</div>
+      <div class="meta-row">
+        <span class="tag">${t.purpose||"여행"}</span>
+        ${t.flights&&t.flights.length?`<span class="tag">✈ ${t.flights.length}건</span>`:""}
+        ${t.rating?`<span class="stars">${"★".repeat(t.rating)}${"☆".repeat(5-t.rating)}</span>`:""}
+      </div>
+    </div>
+  </div>`;
+}
+function openTripFromTimeline(id){
+  document.querySelector('.tab-btn[data-tab="map"]').click();
+  setTimeout(()=>openTripPanel(id),120);
+}
+function emptyState(title,sub){
+  return `<div class="empty-state"><div class="stamp">NO<br>TRIP</div><h3>${title}</h3><p>${sub}</p></div>`;
+}
+
+/* ====================================================================
+   STATS
+==================================================================== */
+function renderStats(){
+  const el=document.getElementById("statsContent");
+  if(state.trips.length===0){el.innerHTML=emptyState("통계를 보여줄 데이터가 없어요","여행을 기록하면 통계가 채워져요");return;}
+  const codes=visitedCodes();
+  const totalDays=state.trips.reduce((s,t)=>s+dayCount(t.start,t.end),0);
+  const totalFlights=state.trips.reduce((s,t)=>s+((t.flights||[]).length),0);
+  const ratings=state.trips.filter(t=>t.rating).map(t=>t.rating);
+  const avgRating=ratings.length?(ratings.reduce((a,b)=>a+b,0)/ratings.length).toFixed(1):"-";
+
+  el.innerHTML=`
+  <div class="hero-stat">
+    <div><div class="big">${codes.length}</div><div class="lbl">VISITED COUNTRIES · 방문국가</div></div>
+    <div class="stamp">${codes.length}<br>국</div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-box"><div class="val">${state.trips.length}</div><div class="lbl">총 여행 횟수</div></div>
+    <div class="stat-box"><div class="val">${totalDays}</div><div class="lbl">총 여행일수</div></div>
+    <div class="stat-box"><div class="val">${totalFlights}</div><div class="lbl">총 항공권 수</div></div>
+    <div class="stat-box"><div class="val">${avgRating}</div><div class="lbl">평균 만족도</div></div>
+  </div>
+  <div class="chart-card"><h3>대륙별 방문 비율</h3><canvas id="continentChart"></canvas></div>
+  <div class="chart-card"><h3>가장 많이 이용한 항공사</h3><canvas id="airlineChart"></canvas></div>
+  `;
+  drawContinentChart(codes);
+  drawAirlineChart();
+}
+function dayCount(s,e){
+  if(!s)return 1;
+  const start=new Date(s),end=e?new Date(e):start;
+  return Math.max(1,Math.round((end-start)/86400000)+1);
+}
+function drawContinentChart(codes){
+  const counts={};
+  CONTINENT_ORDER.forEach(c=>counts[c]=0);
+  codes.forEach(code=>{const ci=countryInfo(code);if(ci)counts[ci.cont]=(counts[ci.cont]||0)+1;});
+  const labels=Object.keys(counts).filter(k=>counts[k]>0);
+  const data=labels.map(l=>counts[l]);
+  if(charts.continent)charts.continent.destroy();
+  charts.continent=new Chart(document.getElementById("continentChart"),{
+    type:"doughnut",
+    data:{labels,datasets:[{data,backgroundColor:["#B5483D","#C9A227","#1B2A4A","#5B6B85","#7E1248","#3A8F8A"],borderWidth:0}]},
+    options:{plugins:{legend:{position:"bottom",labels:{font:{size:11},color:"#5B6B85"}}}}
+  });
+}
+function drawAirlineChart(){
+  const counts={};
+  state.trips.forEach(t=>(t.flights||[]).forEach(f=>{const n=f.airline||"기타";counts[n]=(counts[n]||0)+1;}));
+  const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  if(charts.airline)charts.airline.destroy();
+  charts.airline=new Chart(document.getElementById("airlineChart"),{
+    type:"bar",
+    data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:"#B5483D",borderRadius:6}]},
+    options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{ticks:{precision:0,color:"#93A0B5"}},y:{ticks:{color:"#5B6B85",font:{size:11.5}}}}}
+  });
+}
+
+/* ====================================================================
+   FLIGHTS ARCHIVE
+==================================================================== */
+function renderFlights(){
+  const el=document.getElementById("flightsContent");
+  const q=(document.getElementById("flightSearch").value||"").trim().toLowerCase();
+  let list=[];
+  state.trips.forEach(t=>(t.flights||[]).forEach(f=>list.push({f,t})));
+  if(q){
+    list=list.filter(({f,t})=>{
+      const ci=countryInfo(t.countryCode);
+      const hay=[f.airline,f.flightNo,f.from,f.to,t.city,ci?ci.ko:""].join(" ").toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  list.sort((a,b)=>new Date(b.t.start)-new Date(a.t.start));
+  if(list.length===0){el.innerHTML=emptyState("등록된 항공권이 없어요","여행을 추가할 때 항공권 정보를 함께 입력해보세요");return;}
+  el.innerHTML=list.map(({f,t})=>`<div class="bp-card-margin">${boardingPassHTML(f,t)}</div>`).join("");
+}
+document.getElementById("flightSearch").addEventListener("input",renderFlights);
+
+/* ====================================================================
+   ADD / EDIT TRIP MODAL
+==================================================================== */
+const overlay=document.getElementById("modalOverlay");
+const tripForm=document.getElementById("tripForm");
+const countrySelect=document.getElementById("f_country");
+let editingId=null;
+let currentRating=0;
+let currentPhoto=null;
+
+function populateCountrySelect(){
+  let html="";
+  CONTINENT_ORDER.forEach(cont=>{
+    const items=COUNTRIES.filter(c=>c.cont===cont);
+    if(!items.length)return;
+    html+=`<optgroup label="${cont}">`;
+    items.forEach(c=>html+=`<option value="${c.code}">${c.ko}</option>`);
+    html+="</optgroup>";
+  });
+  countrySelect.innerHTML=html;
+}
+populateCountrySelect();
+
+function openModal(title){
+  document.getElementById("modalTitle").textContent=title;
+  overlay.classList.add("open");
+}
+function closeModal(){overlay.classList.remove("open");}
+document.getElementById("modalCloseBtn").addEventListener("click",closeModal);
+document.getElementById("cancelBtn").addEventListener("click",closeModal);
+document.getElementById("fabAdd").addEventListener("click",()=>{resetForm();openModal("여행 추가");});
+
+document.getElementById("ratingInput").addEventListener("click",e=>{
+  if(e.target.tagName!=="BUTTON")return;
+  currentRating=parseInt(e.target.dataset.v,10);
+  updateRatingUI();
+});
+function updateRatingUI(){
+  document.querySelectorAll("#ratingInput button").forEach(b=>{
+    b.classList.toggle("on",parseInt(b.dataset.v,10)<=currentRating);
+  });
+}
+
+document.getElementById("f_photo").addEventListener("change",e=>{
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{currentPhoto=reader.result;document.getElementById("photoPreview").innerHTML=`<img src="${currentPhoto}">`;};
+  reader.readAsDataURL(file);
+});
+
+function resetForm(){
+  editingId=null;
+  tripForm.reset();
+  currentRating=0;currentPhoto=null;
+  updateRatingUI();
+  document.getElementById("photoPreview").innerHTML="사진 없음";
+  document.getElementById("flightsFieldArea").innerHTML="";
+}
+
+/* ---- dynamic flight blocks ---- */
+function airlineOptionsHTML(selected){
+  let html=`<option value="">선택 안 함</option>`;
+  Object.keys(AIRLINES).forEach(name=>{html+=`<option value="${name}" ${name===selected?"selected":""}>${name}</option>`;});
+  html+=`<option value="__custom__">기타 (직접 입력)</option>`;
+  return html;
+}
+function addFlightBlock(data){
+  data=data||{};
+  const wrap=document.createElement("div");
+  wrap.className="flight-block";
+  const blockId=uid();
+  wrap.dataset.id=blockId;
+  const knownAirline=data.airline && AIRLINES[data.airline]?data.airline:"";
+  const customAirline=data.airline && !AIRLINES[data.airline]?data.airline:"";
+  wrap.innerHTML=`
+    <button type="button" class="rm-btn">✕</button>
+    <div class="field"><label>항공사</label>
+      <select class="fl_airline_select">${airlineOptionsHTML(knownAirline)}</select>
+      <input class="fl_airline_custom" type="text" placeholder="항공사명 직접 입력" style="margin-top:8px;${customAirline||!data.airline?'':'display:none;'}" value="${customAirline?escapeAttr(customAirline):''}">
+    </div>
+    <div class="field-row">
+      <div class="field"><label>편명</label><input class="fl_flightNo" type="text" placeholder="KE020" value="${escapeAttr(data.flightNo||'')}"></div>
+      <div class="field"><label>좌석클래스</label>
+        <select class="fl_seatClass">
+          ${["일반석","프리미엄","비즈니스","일등석"].map(o=>`<option ${o===data.seatClass?"selected":""}>${o}</option>`).join("")}
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>출발지</label><input class="fl_from" type="text" placeholder="SEATTLE" value="${escapeAttr(data.from||'')}"></div>
+      <div class="field"><label>도착지</label><input class="fl_to" type="text" placeholder="SEOUL" value="${escapeAttr(data.to||'')}"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>출발시간</label><input class="fl_dep" type="datetime-local" value="${data.dep||''}"></div>
+      <div class="field"><label>도착시간</label><input class="fl_arr" type="datetime-local" value="${data.arr||''}"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>가격</label><input class="fl_price" type="number" placeholder="원" value="${data.price||''}"></div>
+      <div class="field"><label>예약번호</label><input class="fl_resv" type="text" value="${escapeAttr(data.reservationNo||'')}"></div>
+    </div>
+  `;
+  wrap.querySelector(".rm-btn").addEventListener("click",()=>wrap.remove());
+  const sel=wrap.querySelector(".fl_airline_select");
+  const custom=wrap.querySelector(".fl_airline_custom");
+  sel.addEventListener("change",()=>{custom.style.display=sel.value==="__custom__"?"block":"none";});
+  if(knownAirline)sel.value=knownAirline;
+  else if(customAirline){sel.value="__custom__";custom.style.display="block";}
+  document.getElementById("flightsFieldArea").appendChild(wrap);
+}
+document.getElementById("addFlightBtn").addEventListener("click",()=>addFlightBlock());
+
+function collectFlights(){
+  return [...document.querySelectorAll(".flight-block")].map(b=>{
+    const sel=b.querySelector(".fl_airline_select").value;
+    const airline=sel==="__custom__"?b.querySelector(".fl_airline_custom").value.trim():sel;
+    return {
+      airline,
+      flightNo:b.querySelector(".fl_flightNo").value.trim(),
+      seatClass:b.querySelector(".fl_seatClass").value,
+      from:b.querySelector(".fl_from").value.trim(),
+      to:b.querySelector(".fl_to").value.trim(),
+      dep:b.querySelector(".fl_dep").value,
+      arr:b.querySelector(".fl_arr").value,
+      price:b.querySelector(".fl_price").value,
+      reservationNo:b.querySelector(".fl_resv").value.trim(),
+    };
+  }).filter(f=>f.airline||f.flightNo||f.from||f.to);
+}
+
+/* ---- edit / delete ---- */
+window.editTrip=function(id){
+  const t=state.trips.find(x=>x.id===id);
+  if(!t)return;
+  resetForm();
+  editingId=id;
+  countrySelect.value=t.countryCode;
+  document.getElementById("f_city").value=t.city||"";
+  document.getElementById("f_start").value=t.start||"";
+  document.getElementById("f_end").value=t.end||"";
+  document.getElementById("f_companion").value=t.companion||"";
+  document.getElementById("f_purpose").value=t.purpose||"여행";
+  document.getElementById("f_lat").value=t.lat!=null?t.lat:"";
+  document.getElementById("f_lng").value=t.lng!=null?t.lng:"";
+  document.getElementById("f_memo").value=t.memo||"";
+  currentRating=t.rating||0;updateRatingUI();
+  if(t.photo){currentPhoto=t.photo;document.getElementById("photoPreview").innerHTML=`<img src="${t.photo}">`;}
+  (t.flights||[]).forEach(f=>addFlightBlock(f));
+  tripPanel.classList.remove("open");
+  openModal("여행 수정");
+};
+window.deleteTrip=function(id){
+  if(!confirm("이 여행 기록을 삭제할까요?"))return;
+  state.trips=state.trips.filter(t=>t.id!==id);
+  tripPanel.classList.remove("open");
+  refreshAll();
+  renderTimeline();renderFlights();
+};
+
+tripForm.addEventListener("submit",e=>{
+  e.preventDefault();
+  const trip={
+    id:editingId||uid(),
+    countryCode:countrySelect.value,
+    city:document.getElementById("f_city").value.trim(),
+    start:document.getElementById("f_start").value,
+    end:document.getElementById("f_end").value,
+    companion:document.getElementById("f_companion").value.trim(),
+    purpose:document.getElementById("f_purpose").value,
+    lat:document.getElementById("f_lat").value?parseFloat(document.getElementById("f_lat").value):null,
+    lng:document.getElementById("f_lng").value?parseFloat(document.getElementById("f_lng").value):null,
+    memo:document.getElementById("f_memo").value.trim(),
+    rating:currentRating,
+    photo:currentPhoto,
+    flights:collectFlights(),
+  };
+  if(editingId){
+    const idx=state.trips.findIndex(t=>t.id===editingId);
+    state.trips[idx]=trip;
+  }else{
+    state.trips.push(trip);
+  }
+  closeModal();
+  refreshAll();
+  renderTimeline();renderFlights();
+});
+
+/* ====================================================================
+   HELPERS
+==================================================================== */
+function fmtRange(s,e){
+  if(!s)return "";
+  const fs=fmtDateShort(s);
+  if(!e||e===s)return fs;
+  return `${fs} → ${fmtDateShort(e)}`;
+}
+function fmtDateShort(d){
+  const dt=new Date(d);
+  if(isNaN(dt))return d;
+  return `${dt.getFullYear()}.${String(dt.getMonth()+1).padStart(2,"0")}.${String(dt.getDate()).padStart(2,"0")}`;
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function escapeAttr(s){return escapeHtml(s);}
+
+/* ====================================================================
+   INIT
+==================================================================== */
+initMap();
+updateCounters();
+window.addEventListener("load",()=>{setTimeout(()=>map&&map.invalidateSize(),200);});
+</script>
+</body>
+</html>

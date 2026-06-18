@@ -154,8 +154,12 @@ a{color:inherit;}
   background:var(--surface);border:2px solid var(--stamp);
   display:flex;align-items:center;justify-content:center;
   font-size:14px;box-shadow:var(--shadow-sm);
-  transform:rotate(-15deg);
+  cursor:pointer;pointer-events:auto;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
 }
+.plane-icon span{display:block;transform:rotate(-15deg);pointer-events:none;}
+.leaflet-marker-icon{user-select:none;-webkit-user-select:none;}
 
 .trip-panel{
   position:absolute;left:0;right:0;bottom:0;
@@ -255,40 +259,60 @@ a{color:inherit;}
 }
 .flights-toolbar input::placeholder{color:var(--ink-faint);}
 
-.bp-wrap{background:var(--bg);padding:4px 0 16px;}
+.bp-wrap{background:var(--bg);padding:14px 0 16px;display:flex;flex-wrap:wrap;gap:16px;justify-content:center;}
 .boarding-pass{
   --ac:#1B2A4A;--ac2:#2C4368;
-  background:var(--surface);border-radius:var(--radius-md);overflow:hidden;
+  width:280px;background:var(--surface);border-radius:var(--radius-md);overflow:hidden;
   box-shadow:var(--shadow-sm);position:relative;border:1px solid var(--line);
 }
 .bp-top{
   background:linear-gradient(120deg,var(--ac) 0%,var(--ac2) 100%);
-  color:#fff;padding:11px 16px;display:flex;justify-content:space-between;align-items:center;
+  color:#fff;padding:12px 16px;text-align:center;
 }
-.bp-top .bp-brand{font-weight:700;font-size:13.5px;letter-spacing:.3px;}
-.bp-top .bp-tag{font-size:9.5px;letter-spacing:2px;color:rgba(255,255,255,.75);font-family:var(--font-mono);}
-.bp-body{padding:14px 16px 6px;font-family:var(--font-mono);}
-.bp-row{display:flex;gap:10px;padding:4px 0;font-size:12.5px;align-items:baseline;}
+.bp-top .bp-tag{font-size:11px;letter-spacing:2.5px;font-weight:700;font-family:var(--font-mono);}
+.bp-body{padding:16px 16px 10px;font-family:var(--font-mono);}
+.bp-row{display:flex;gap:10px;padding:5px 0;font-size:12px;align-items:baseline;}
 .bp-row label{width:46px;flex:0 0 auto;color:var(--ink-faint);font-size:9.5px;letter-spacing:1px;}
-.bp-row span{color:var(--ink);font-weight:700;font-size:13.5px;letter-spacing:.3px;}
+.bp-row span{color:var(--ink);font-weight:700;font-size:13px;letter-spacing:.3px;word-break:break-word;}
+.bp-seatbox{
+  margin:6px 16px 0;background:var(--stamp-soft);border:1.5px solid var(--stamp);border-radius:999px;
+  display:flex;align-items:center;justify-content:space-between;padding:8px 18px;
+}
+.bp-seat-lbl{font-size:9px;letter-spacing:1.5px;color:var(--stamp);font-weight:700;line-height:1.3;font-family:var(--font-mono);}
+.bp-seat-lbl small{font-size:9px;letter-spacing:0;display:block;}
+.bp-seat-val{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--stamp);}
 .bp-divider{
-  position:relative;height:1px;margin:8px 0 0;
+  position:relative;height:1px;margin:14px 16px 0;
   background-image:linear-gradient(90deg,var(--line) 60%,transparent 0%);
   background-size:10px 1px;background-repeat:repeat-x;
 }
 .bp-divider::before,.bp-divider::after{
   content:"";position:absolute;top:-7px;width:14px;height:14px;border-radius:50%;background:var(--bg);
 }
-.bp-divider::before{left:-23px;}
-.bp-divider::after{right:-23px;}
-.bp-foot{display:flex;justify-content:space-between;align-items:center;padding:10px 16px 14px;}
-.bp-seatpill{
-  background:var(--stamp-soft);color:var(--stamp);font-family:var(--font-mono);font-weight:700;
-  font-size:12px;padding:5px 12px;border-radius:999px;
+.bp-divider::before{left:-7px;}
+.bp-divider::after{right:-7px;}
+.bp-foot{padding:10px 16px 4px;}
+.bp-tkno{font-family:var(--font-mono);font-size:10px;color:var(--ink-faint);letter-spacing:.3px;}
+.bp-brand-strip{display:flex;align-items:center;gap:8px;padding:10px 16px 16px;}
+.bp-monogram{
+  width:24px;height:24px;border-radius:50%;background:var(--ac);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:0 0 auto;
 }
-.bp-tkno{font-family:var(--font-mono);font-size:10.5px;color:var(--ink-faint);}
-.bp-card-margin{margin:0 18px 14px;max-width:724px;}
-@media (min-width:520px){.bp-card-margin{margin:0 auto 14px;}}
+.bp-brand-word{font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--ac);letter-spacing:.3px;}
+
+/* ---- segmented date / time inputs ---- */
+.date-input,.time-input{display:flex;align-items:center;gap:4px;}
+.date-input input,.time-input input{
+  text-align:center;font-family:var(--font-mono);font-weight:700;letter-spacing:1px;
+  padding:11px 0;min-width:0;
+}
+.date-input .di-y{flex:1.5;}
+.date-input .di-m,.date-input .di-d{flex:1;}
+.time-input .ti-h,.time-input .ti-m{flex:1;}
+.date-input span,.time-input span{color:var(--ink-faint);font-family:var(--font-mono);font-weight:700;flex:0 0 auto;}
+.dt-combo{display:flex;gap:8px;align-items:center;}
+.dt-combo .date-input{flex:1.7;}
+.dt-combo .time-input{flex:1;}
 
 /* ============ MODAL / FORM ============ */
 .modal-overlay{
@@ -372,6 +396,22 @@ a{color:inherit;}
 .detail-row label{color:var(--ink-faint);}
 .detail-row span{font-weight:600;text-align:right;}
 .memo-box{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:var(--ink-soft);margin-top:10px;line-height:1.5;}
+
+/* ============ SYNC (JSONBin) ============ */
+.gear-btn{
+  width:34px;height:34px;border-radius:50%;border:1px solid rgba(244,239,226,.35);
+  background:rgba(255,255,255,.06);color:#F4EFE2;font-size:15px;
+  display:flex;align-items:center;justify-content:center;margin-right:10px;flex:0 0 auto;
+}
+.sync-status{
+  display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-soft);
+  margin-bottom:14px;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);
+}
+.sync-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;}
+.sync-dot.on{background:#3A8F5A;}
+.sync-dot.off{background:var(--ink-faint);}
+.sync-help{font-size:11.5px;color:var(--ink-faint);margin:-2px 0 14px;line-height:1.55;}
+.sync-help a{color:var(--stamp);font-weight:600;}
 </style>
 </head>
 <body>
@@ -386,8 +426,11 @@ a{color:inherit;}
           <p class="brand-sub">나의 여행 기록</p>
         </div>
       </div>
-      <div class="topbar-stat">
-        <span id="topCountryCount">0</span><small>VISITED COUNTRIES</small>
+      <div style="display:flex;align-items:center;">
+        <button class="gear-btn" id="syncBtn" aria-label="동기화 설정">⚙</button>
+        <div class="topbar-stat">
+          <span id="topCountryCount">0</span><small>VISITED COUNTRIES</small>
+        </div>
       </div>
     </div>
   </header>
@@ -448,11 +491,23 @@ a{color:inherit;}
         <div class="field-row">
           <div class="field">
             <label>시작일</label>
-            <input id="f_start" type="date" required>
+            <div class="date-input" id="f_start_wrap">
+              <input class="di-y" type="text" inputmode="numeric" placeholder="YYYY" maxlength="4">
+              <span>.</span>
+              <input class="di-m" type="text" inputmode="numeric" placeholder="MM" maxlength="2">
+              <span>.</span>
+              <input class="di-d" type="text" inputmode="numeric" placeholder="DD" maxlength="2">
+            </div>
           </div>
           <div class="field">
             <label>종료일</label>
-            <input id="f_end" type="date">
+            <div class="date-input" id="f_end_wrap">
+              <input class="di-y" type="text" inputmode="numeric" placeholder="YYYY" maxlength="4">
+              <span>.</span>
+              <input class="di-m" type="text" inputmode="numeric" placeholder="MM" maxlength="2">
+              <span>.</span>
+              <input class="di-d" type="text" inputmode="numeric" placeholder="DD" maxlength="2">
+            </div>
           </div>
         </div>
         <div class="field-row">
@@ -500,6 +555,16 @@ a{color:inherit;}
         <button type="button" class="btn-ghost" id="cancelBtn">취소</button>
       </form>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="syncOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>동기화 설정</h2>
+      <button id="syncCloseBtn">✕</button>
+    </div>
+    <div class="modal-body" id="syncModalBody"></div>
   </div>
 </div>
 
@@ -674,7 +739,7 @@ function renderMarkers(){
     const ci=countryInfo(trip.countryCode);
     const lat=trip.lat!=null?trip.lat:(ci?ci.lat:0);
     const lng=trip.lng!=null?trip.lng:(ci?ci.lng:0);
-    const icon=L.divIcon({className:"",html:'<div class="plane-icon">✈️</div>',iconSize:[30,30],iconAnchor:[15,15]});
+    const icon=L.divIcon({className:"",html:'<div class="plane-icon"><span>✈️</span></div>',iconSize:[30,30],iconAnchor:[15,15]});
     const marker=L.marker([lat,lng],{icon}).addTo(markersLayer);
     marker.on("click",()=>openTripPanel(trip.id));
   });
@@ -692,6 +757,7 @@ function refreshAll(){
   updateCounters();
   refreshMapStyle();
   renderMarkers();
+  autoPushSync();
 }
 
 /* ---- trip detail panel ---- */
@@ -705,7 +771,7 @@ function openTripPanel(tripId){
   html+=detailRows(trip);
   if(trip.memo)html+=`<div class="memo-box">${escapeHtml(trip.memo)}</div>`;
   if(trip.photo)html+=`<div class="photo-preview" style="margin-top:12px;height:160px;"><img src="${trip.photo}"></div>`;
-  (trip.flights||[]).forEach(f=>{html+=`<div style="margin-top:14px;">${boardingPassHTML(f,trip)}</div>`;});
+  (trip.flights||[]).forEach(f=>{html+=`<div style="margin-top:14px;display:flex;justify-content:center;">${boardingPassHTML(f,trip)}</div>`;});
   html+=`<div class="panel-actions">
     <button class="btn-edit" onclick="editTrip('${trip.id}')">수정</button>
     <button class="btn-delete" onclick="deleteTrip('${trip.id}')">삭제</button>
@@ -725,18 +791,27 @@ document.getElementById("panelCloseBtn").addEventListener("click",()=>tripPanel.
 
 function boardingPassHTML(f,trip){
   const brand=AIRLINES[f.airline]||DEFAULT_AIRLINE;
-  const dateStr=trip.start?fmtDateShort(trip.start):"";
+  const dateStr=f.depDate?fmtDateShort(f.depDate):(trip.start?fmtDateShort(trip.start):"");
+  const timeStr=f.depTime?` ${f.depTime}`:"";
+  const seatVal=f.seatNo||f.seatClass||"-";
   return `<div class="boarding-pass" style="--ac:${brand.c1};--ac2:${brand.c2};">
-    <div class="bp-top"><span class="bp-brand">${escapeHtml(f.airline||"항공권")}</span><span class="bp-tag">BOARDING PASS</span></div>
+    <div class="bp-top"><span class="bp-tag">✈ BOARDING PASS</span></div>
     <div class="bp-body">
       <div class="bp-row"><label>FROM</label><span>${escapeHtml(f.from||"-")}</span></div>
       <div class="bp-row"><label>TO</label><span>${escapeHtml(f.to||"-")}</span></div>
-      <div class="bp-row"><label>FLIGHT</label><span>${escapeHtml(f.flightNo||"-")} · ${dateStr}</span></div>
+      <div class="bp-row"><label>FLIGHT</label><span>${escapeHtml(f.flightNo||"-")} · ${dateStr}${timeStr}</span></div>
+    </div>
+    <div class="bp-seatbox">
+      <div class="bp-seat-lbl">SEAT<br><small>좌석</small></div>
+      <div class="bp-seat-val">${escapeHtml(seatVal)}</div>
     </div>
     <div class="bp-divider"></div>
     <div class="bp-foot">
-      <span class="bp-tkno">${escapeHtml(f.reservationNo||"")}</span>
-      <span class="bp-seatpill">${escapeHtml(f.seatClass||"일반석")}</span>
+      <span class="bp-tkno">${escapeHtml(f.reservationNo||"")}${f.seatNo&&f.seatClass?" · "+escapeHtml(f.seatClass):""}</span>
+    </div>
+    <div class="bp-brand-strip">
+      <span class="bp-monogram">${escapeHtml((f.airline||"?").slice(0,1))}</span>
+      <span class="bp-brand-word">${escapeHtml(f.airline||"항공권")}</span>
     </div>
   </div>`;
 }
@@ -857,7 +932,7 @@ function renderFlights(){
   }
   list.sort((a,b)=>new Date(b.t.start)-new Date(a.t.start));
   if(list.length===0){el.innerHTML=emptyState("등록된 항공권이 없어요","여행을 추가할 때 항공권 정보를 함께 입력해보세요");return;}
-  el.innerHTML=list.map(({f,t})=>`<div class="bp-card-margin">${boardingPassHTML(f,t)}</div>`).join("");
+  el.innerHTML=list.map(({f,t})=>boardingPassHTML(f,t)).join("");
 }
 document.getElementById("flightSearch").addEventListener("input",renderFlights);
 
@@ -943,20 +1018,43 @@ function addFlightBlock(data){
       <input class="fl_airline_custom" type="text" placeholder="항공사명 직접 입력" style="margin-top:8px;${customAirline||!data.airline?'':'display:none;'}" value="${customAirline?escapeAttr(customAirline):''}">
     </div>
     <div class="field-row">
-      <div class="field"><label>편명</label><input class="fl_flightNo" type="text" placeholder="KE020" value="${escapeAttr(data.flightNo||'')}"></div>
-      <div class="field"><label>좌석클래스</label>
-        <select class="fl_seatClass">
-          ${["일반석","프리미엄","비즈니스","일등석"].map(o=>`<option ${o===data.seatClass?"selected":""}>${o}</option>`).join("")}
-        </select>
+      <div class="field"><label>편명</label><input class="fl_flightNo uppercase-input" type="text" placeholder="KE020" value="${escapeAttr((data.flightNo||'').toUpperCase())}"></div>
+      <div class="field"><label>좌석번호</label><input class="fl_seatNo uppercase-input" type="text" placeholder="30H" value="${escapeAttr((data.seatNo||'').toUpperCase())}"></div>
+    </div>
+    <div class="field"><label>좌석클래스</label>
+      <select class="fl_seatClass">
+        ${["일반석","프리미엄","비즈니스","일등석"].map(o=>`<option ${o===data.seatClass?"selected":""}>${o}</option>`).join("")}
+      </select>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>출발지</label><input class="fl_from uppercase-input" type="text" placeholder="SEATTLE" value="${escapeAttr((data.from||'').toUpperCase())}"></div>
+      <div class="field"><label>도착지</label><input class="fl_to uppercase-input" type="text" placeholder="SEOUL" value="${escapeAttr((data.to||'').toUpperCase())}"></div>
+    </div>
+    <div class="field"><label>출발일시</label>
+      <div class="dt-combo">
+        <div class="date-input fl_dep_date">
+          <input class="di-y" type="text" inputmode="numeric" placeholder="YYYY" maxlength="4">
+          <span>.</span><input class="di-m" type="text" inputmode="numeric" placeholder="MM" maxlength="2">
+          <span>.</span><input class="di-d" type="text" inputmode="numeric" placeholder="DD" maxlength="2">
+        </div>
+        <div class="time-input fl_dep_time">
+          <input class="ti-h" type="text" inputmode="numeric" placeholder="HH" maxlength="2">
+          <span>:</span><input class="ti-m" type="text" inputmode="numeric" placeholder="MM" maxlength="2">
+        </div>
       </div>
     </div>
-    <div class="field-row">
-      <div class="field"><label>출발지</label><input class="fl_from" type="text" placeholder="SEATTLE" value="${escapeAttr(data.from||'')}"></div>
-      <div class="field"><label>도착지</label><input class="fl_to" type="text" placeholder="SEOUL" value="${escapeAttr(data.to||'')}"></div>
-    </div>
-    <div class="field-row">
-      <div class="field"><label>출발시간</label><input class="fl_dep" type="datetime-local" value="${data.dep||''}"></div>
-      <div class="field"><label>도착시간</label><input class="fl_arr" type="datetime-local" value="${data.arr||''}"></div>
+    <div class="field"><label>도착일시</label>
+      <div class="dt-combo">
+        <div class="date-input fl_arr_date">
+          <input class="di-y" type="text" inputmode="numeric" placeholder="YYYY" maxlength="4">
+          <span>.</span><input class="di-m" type="text" inputmode="numeric" placeholder="MM" maxlength="2">
+          <span>.</span><input class="di-d" type="text" inputmode="numeric" placeholder="DD" maxlength="2">
+        </div>
+        <div class="time-input fl_arr_time">
+          <input class="ti-h" type="text" inputmode="numeric" placeholder="HH" maxlength="2">
+          <span>:</span><input class="ti-m" type="text" inputmode="numeric" placeholder="MM" maxlength="2">
+        </div>
+      </div>
     </div>
     <div class="field-row">
       <div class="field"><label>가격</label><input class="fl_price" type="number" placeholder="원" value="${data.price||''}"></div>
@@ -969,6 +1067,21 @@ function addFlightBlock(data){
   sel.addEventListener("change",()=>{custom.style.display=sel.value==="__custom__"?"block":"none";});
   if(knownAirline)sel.value=knownAirline;
   else if(customAirline){sel.value="__custom__";custom.style.display="block";}
+  wrap.querySelectorAll(".uppercase-input").forEach(inp=>{
+    inp.addEventListener("input",()=>{
+      const pos=inp.selectionStart;
+      inp.value=inp.value.toUpperCase();
+      try{inp.setSelectionRange(pos,pos);}catch(e){}
+    });
+  });
+  wireDateInput(wrap.querySelector(".fl_dep_date"));
+  wireTimeInput(wrap.querySelector(".fl_dep_time"));
+  wireDateInput(wrap.querySelector(".fl_arr_date"));
+  wireTimeInput(wrap.querySelector(".fl_arr_time"));
+  if(data.depDate)setDateValue(wrap.querySelector(".fl_dep_date"),data.depDate);
+  if(data.depTime)setTimeValue(wrap.querySelector(".fl_dep_time"),data.depTime);
+  if(data.arrDate)setDateValue(wrap.querySelector(".fl_arr_date"),data.arrDate);
+  if(data.arrTime)setTimeValue(wrap.querySelector(".fl_arr_time"),data.arrTime);
   document.getElementById("flightsFieldArea").appendChild(wrap);
 }
 document.getElementById("addFlightBtn").addEventListener("click",()=>addFlightBlock());
@@ -979,17 +1092,75 @@ function collectFlights(){
     const airline=sel==="__custom__"?b.querySelector(".fl_airline_custom").value.trim():sel;
     return {
       airline,
-      flightNo:b.querySelector(".fl_flightNo").value.trim(),
+      flightNo:b.querySelector(".fl_flightNo").value.trim().toUpperCase(),
+      seatNo:b.querySelector(".fl_seatNo").value.trim().toUpperCase(),
       seatClass:b.querySelector(".fl_seatClass").value,
-      from:b.querySelector(".fl_from").value.trim(),
-      to:b.querySelector(".fl_to").value.trim(),
-      dep:b.querySelector(".fl_dep").value,
-      arr:b.querySelector(".fl_arr").value,
+      from:b.querySelector(".fl_from").value.trim().toUpperCase(),
+      to:b.querySelector(".fl_to").value.trim().toUpperCase(),
+      depDate:getDateValue(b.querySelector(".fl_dep_date")),
+      depTime:getTimeValue(b.querySelector(".fl_dep_time")),
+      arrDate:getDateValue(b.querySelector(".fl_arr_date")),
+      arrTime:getTimeValue(b.querySelector(".fl_arr_time")),
       price:b.querySelector(".fl_price").value,
       reservationNo:b.querySelector(".fl_resv").value.trim(),
     };
   }).filter(f=>f.airline||f.flightNo||f.from||f.to);
 }
+
+/* ---- segmented date & time inputs ---- */
+function onlyDigits(v){return v.replace(/[^0-9]/g,"");}
+function wireDateInput(container){
+  if(!container)return;
+  const y=container.querySelector(".di-y"),m=container.querySelector(".di-m"),d=container.querySelector(".di-d");
+  y.addEventListener("input",()=>{y.value=onlyDigits(y.value).slice(0,4);if(y.value.length===4)m.focus();});
+  m.addEventListener("input",()=>{m.value=onlyDigits(m.value).slice(0,2);if(m.value.length===2)d.focus();});
+  d.addEventListener("input",()=>{d.value=onlyDigits(d.value).slice(0,2);});
+  [m,d].forEach(inp=>inp.addEventListener("blur",()=>clampDateInputs(m,d)));
+}
+function clampDateInputs(m,d){
+  if(m.value){let mv=parseInt(m.value,10);if(mv<1)mv=1;if(mv>12)mv=12;m.value=String(mv).padStart(2,"0");}
+  if(d.value){let dv=parseInt(d.value,10);if(dv<1)dv=1;if(dv>31)dv=31;d.value=String(dv).padStart(2,"0");}
+}
+function getDateValue(container){
+  if(!container)return "";
+  const y=container.querySelector(".di-y").value,m=container.querySelector(".di-m").value,d=container.querySelector(".di-d").value;
+  if(!y||!m||!d)return "";
+  return `${y.padStart(4,"0")}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;
+}
+function setDateValue(container,value){
+  if(!container||!value)return;
+  const parts=String(value).split("-");
+  if(parts.length<3)return;
+  container.querySelector(".di-y").value=parts[0];
+  container.querySelector(".di-m").value=parts[1];
+  container.querySelector(".di-d").value=parts[2];
+}
+function wireTimeInput(container){
+  if(!container)return;
+  const h=container.querySelector(".ti-h"),m=container.querySelector(".ti-m");
+  h.addEventListener("input",()=>{h.value=onlyDigits(h.value).slice(0,2);if(h.value.length===2)m.focus();});
+  m.addEventListener("input",()=>{m.value=onlyDigits(m.value).slice(0,2);});
+  [h,m].forEach(inp=>inp.addEventListener("blur",()=>clampTimeInputs(h,m)));
+}
+function clampTimeInputs(h,m){
+  if(h.value){let hv=parseInt(h.value,10);if(hv>23)hv=23;h.value=String(hv).padStart(2,"0");}
+  if(m.value){let mv=parseInt(m.value,10);if(mv>59)mv=59;m.value=String(mv).padStart(2,"0");}
+}
+function getTimeValue(container){
+  if(!container)return "";
+  const h=container.querySelector(".ti-h").value,m=container.querySelector(".ti-m").value;
+  if(!h||!m)return "";
+  return `${h.padStart(2,"0")}:${m.padStart(2,"0")}`;
+}
+function setTimeValue(container,value){
+  if(!container||!value)return;
+  const parts=String(value).split(":");
+  if(parts.length<2)return;
+  container.querySelector(".ti-h").value=parts[0];
+  container.querySelector(".ti-m").value=parts[1];
+}
+wireDateInput(document.getElementById("f_start_wrap"));
+wireDateInput(document.getElementById("f_end_wrap"));
 
 /* ---- edit / delete ---- */
 window.editTrip=function(id){
@@ -999,8 +1170,8 @@ window.editTrip=function(id){
   editingId=id;
   countrySelect.value=t.countryCode;
   document.getElementById("f_city").value=t.city||"";
-  document.getElementById("f_start").value=t.start||"";
-  document.getElementById("f_end").value=t.end||"";
+  setDateValue(document.getElementById("f_start_wrap"),t.start||"");
+  setDateValue(document.getElementById("f_end_wrap"),t.end||"");
   document.getElementById("f_companion").value=t.companion||"";
   document.getElementById("f_purpose").value=t.purpose||"여행";
   document.getElementById("f_lat").value=t.lat!=null?t.lat:"";
@@ -1022,12 +1193,16 @@ window.deleteTrip=function(id){
 
 tripForm.addEventListener("submit",e=>{
   e.preventDefault();
+  if(!getDateValue(document.getElementById("f_start_wrap"))){
+    alert("시작일을 입력해주세요 (연도 4자리부터)");
+    return;
+  }
   const trip={
     id:editingId||uid(),
     countryCode:countrySelect.value,
     city:document.getElementById("f_city").value.trim(),
-    start:document.getElementById("f_start").value,
-    end:document.getElementById("f_end").value,
+    start:getDateValue(document.getElementById("f_start_wrap")),
+    end:getDateValue(document.getElementById("f_end_wrap")),
     companion:document.getElementById("f_companion").value.trim(),
     purpose:document.getElementById("f_purpose").value,
     lat:document.getElementById("f_lat").value?parseFloat(document.getElementById("f_lat").value):null,
@@ -1047,6 +1222,138 @@ tripForm.addEventListener("submit",e=>{
   refreshAll();
   renderTimeline();renderFlights();
 });
+
+/* ====================================================================
+   SYNC (JSONBin.io)
+==================================================================== */
+const SYNC_KEY="travelLogSyncConfig_v1";
+function loadSyncConfig(){
+  try{const raw=localStorage.getItem(SYNC_KEY);return raw?JSON.parse(raw):null;}catch(e){return null;}
+}
+function saveSyncConfig(cfg){localStorage.setItem(SYNC_KEY,JSON.stringify(cfg));}
+function clearSyncConfig(){localStorage.removeItem(SYNC_KEY);}
+let syncConfig=loadSyncConfig();
+
+function openSyncModal(){renderSyncModal();document.getElementById("syncOverlay").classList.add("open");}
+function closeSyncModal(){document.getElementById("syncOverlay").classList.remove("open");}
+document.getElementById("syncBtn").addEventListener("click",openSyncModal);
+document.getElementById("syncCloseBtn").addEventListener("click",closeSyncModal);
+
+function fmtSyncTime(iso){
+  if(!iso)return "-";
+  const d=new Date(iso);
+  if(isNaN(d))return "-";
+  return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+}
+
+function renderSyncModal(){
+  const body=document.getElementById("syncModalBody");
+  if(syncConfig && syncConfig.binId){
+    body.innerHTML=`
+      <div class="sync-status"><span class="sync-dot on"></span>연결됨 · 마지막 동기화 ${fmtSyncTime(syncConfig.lastSync)}</div>
+      <p class="sync-help">이 Bin ID를 다른 기기에서도 똑같이 입력하면 같은 여행 기록을 볼 수 있어요.</p>
+      <div class="field"><label>Bin ID</label><input id="syncBinIdShow" type="text" value="${escapeAttr(syncConfig.binId)}" readonly></div>
+      <button type="button" class="btn-primary" id="syncNowBtn">지금 동기화</button>
+      <button type="button" class="btn-ghost" id="syncDisconnectBtn">연결 해제 (이 기기에만 저장)</button>
+    `;
+    document.getElementById("syncNowBtn").addEventListener("click",manualSync);
+    document.getElementById("syncDisconnectBtn").addEventListener("click",()=>{
+      if(confirm("연결을 해제할까요? 데이터는 이 기기에 그대로 남아있어요.")){
+        clearSyncConfig();syncConfig=null;renderSyncModal();
+      }
+    });
+  }else{
+    body.innerHTML=`
+      <div class="sync-status"><span class="sync-dot off"></span>이 기기에만 저장되고 있어요</div>
+      <p class="sync-help">JSONBin.io API 키를 입력하면 여러 기기에서 같은 데이터를 볼 수 있어요. <a href="https://jsonbin.io" target="_blank" rel="noopener">jsonbin.io</a>에서 무료로 키를 발급받을 수 있어요. 기존 Bin이 있다면 Bin ID도 입력해주세요. 없다면 비워두면 자동으로 새로 만들어요.</p>
+      <div class="field"><label>API Key (X-Master-Key)</label><input id="syncApiKey" type="text" placeholder="$2a$10$..."></div>
+      <div class="field"><label>Bin ID (선택)</label><input id="syncBinId" type="text" placeholder="비워두면 새로 생성"></div>
+      <button type="button" class="btn-primary" id="syncConnectBtn">연결하기</button>
+    `;
+    document.getElementById("syncConnectBtn").addEventListener("click",connectSync);
+  }
+}
+
+async function jsonbinCreate(apiKey,payload){
+  const res=await fetch("https://api.jsonbin.io/v3/b",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","X-Master-Key":apiKey,"X-Bin-Name":"travel-log-data"},
+    body:JSON.stringify(payload),
+  });
+  if(!res.ok)throw new Error("create failed");
+  const data=await res.json();
+  return data.metadata.id;
+}
+async function jsonbinFetch(apiKey,binId){
+  const res=await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`,{headers:{"X-Master-Key":apiKey}});
+  if(!res.ok)throw new Error("fetch failed");
+  const data=await res.json();
+  return data.record;
+}
+async function jsonbinPush(apiKey,binId,payload){
+  const res=await fetch(`https://api.jsonbin.io/v3/b/${binId}`,{
+    method:"PUT",
+    headers:{"Content-Type":"application/json","X-Master-Key":apiKey},
+    body:JSON.stringify(payload),
+  });
+  if(!res.ok)throw new Error("push failed");
+  return res.json();
+}
+
+async function connectSync(){
+  const apiKey=document.getElementById("syncApiKey").value.trim();
+  let binId=document.getElementById("syncBinId").value.trim();
+  if(!apiKey){alert("API 키를 입력해주세요.");return;}
+  const btn=document.getElementById("syncConnectBtn");
+  const origLabel=btn.textContent;
+  btn.textContent="연결 중...";btn.disabled=true;
+  try{
+    if(binId){
+      const remote=await jsonbinFetch(apiKey,binId);
+      if(remote && Array.isArray(remote.trips))state=remote;
+    }else{
+      binId=await jsonbinCreate(apiKey,state);
+    }
+    syncConfig={apiKey,binId,lastSync:new Date().toISOString()};
+    saveSyncConfig(syncConfig);
+    await jsonbinPush(apiKey,binId,state);
+    saveData();
+    refreshAll();renderTimeline();renderStats();renderFlights();
+    renderSyncModal();
+  }catch(err){
+    alert("연결에 실패했어요. API 키와 Bin ID를 다시 확인해주세요.");
+    btn.textContent=origLabel;btn.disabled=false;
+  }
+}
+
+async function manualSync(){
+  if(!syncConfig)return;
+  const btn=document.getElementById("syncNowBtn");
+  const origLabel=btn.textContent;
+  btn.textContent="동기화 중...";btn.disabled=true;
+  try{
+    const remote=await jsonbinFetch(syncConfig.apiKey,syncConfig.binId);
+    if(remote && Array.isArray(remote.trips))state=remote;
+    await jsonbinPush(syncConfig.apiKey,syncConfig.binId,state);
+    syncConfig.lastSync=new Date().toISOString();
+    saveSyncConfig(syncConfig);
+    saveData();
+    refreshAll();renderTimeline();renderStats();renderFlights();
+    renderSyncModal();
+  }catch(err){
+    alert("동기화에 실패했어요. 네트워크 상태를 확인해주세요.");
+  }finally{
+    btn.disabled=false;btn.textContent=origLabel;
+  }
+}
+
+function autoPushSync(){
+  if(!syncConfig)return;
+  jsonbinPush(syncConfig.apiKey,syncConfig.binId,state).then(()=>{
+    syncConfig.lastSync=new Date().toISOString();
+    saveSyncConfig(syncConfig);
+  }).catch(()=>{ /* offline or failed — local copy is already saved, will retry on next change */ });
+}
 
 /* ====================================================================
    HELPERS
@@ -1070,6 +1377,19 @@ function escapeAttr(s){return escapeHtml(s);}
 ==================================================================== */
 initMap();
 updateCounters();
+renderMarkers();
+if(syncConfig){
+  jsonbinFetch(syncConfig.apiKey,syncConfig.binId).then(remote=>{
+    if(remote && Array.isArray(remote.trips)){
+      state=remote;
+      saveData();
+      updateCounters();
+      refreshMapStyle();
+      renderMarkers();
+      renderTimeline();renderStats();renderFlights();
+    }
+  }).catch(()=>{ /* offline — keep showing the local cached copy */ });
+}
 window.addEventListener("load",()=>{setTimeout(()=>map&&map.invalidateSize(),200);});
 </script>
 </body>

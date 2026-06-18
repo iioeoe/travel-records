@@ -275,13 +275,12 @@ a{color:inherit;}
 .bp-row label{width:46px;flex:0 0 auto;color:var(--ink-faint);font-size:9.5px;letter-spacing:1px;}
 .bp-row span{color:var(--ink);font-weight:700;font-size:13px;letter-spacing:.3px;word-break:break-word;}
 .bp-seatbox{
-  margin:6px 16px 0;background:var(--seatbg,var(--stamp-soft));border:1.5px solid var(--seatborder,var(--stamp));border-radius:999px;
-  display:flex;align-items:center;padding:8px 4px;
+  margin:6px 16px 16px;background:var(--seatbg,var(--stamp-soft));border:1.5px solid var(--seatborder,var(--stamp));border-radius:999px;
+  display:flex;align-items:baseline;justify-content:center;gap:8px;padding:9px 14px;
 }
-.bp-seat-col,.bp-flight-col{flex:1;text-align:center;min-width:0;}
-.bp-pill-divider{width:1px;height:30px;background:var(--seatborder,var(--stamp));opacity:.3;flex:0 0 auto;}
-.bp-seg-lbl{font-size:8.5px;letter-spacing:1.5px;color:var(--seatborder,var(--stamp));font-weight:700;font-family:var(--font-mono);margin-bottom:2px;}
-.bp-seat-val{font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--seatborder,var(--stamp));}
+.bp-pill-divider{display:inline-block;width:1px;height:16px;background:var(--seatborder,var(--stamp));opacity:.35;transform:translateY(2px);}
+.bp-seg-lbl{font-size:8.5px;letter-spacing:1.5px;color:var(--seatborder,var(--stamp));font-weight:700;font-family:var(--font-mono);}
+.bp-seat-val{font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--seatborder,var(--stamp));}
 .bp-flight-val{font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--seatborder,var(--stamp));letter-spacing:.3px;}
 .bp-divider{
   position:relative;height:1px;margin:14px 16px 0;
@@ -794,7 +793,6 @@ document.getElementById("panelCloseBtn").addEventListener("click",()=>tripPanel.
 function boardingPassHTML(f,trip){
   const brand=AIRLINES[f.airline]||DEFAULT_AIRLINE;
   const dateStr=f.depDate?fmtBoardingDate(f.depDate):(trip.start?fmtBoardingDate(trip.start):"");
-  const timeStr=f.depTime?` ${f.depTime}`:"";
   const seatVal=f.seatNo||f.seatClass||"-";
   const seatVars=brand.seatBg?`--seatbg:${brand.seatBg};--seatborder:${brand.seatBorder};`:"";
   return `<div class="boarding-pass" style="--ac:${brand.c1};--ac2:${brand.c2};${seatVars}">
@@ -802,18 +800,14 @@ function boardingPassHTML(f,trip){
     <div class="bp-body">
       <div class="bp-row"><label>FROM</label><span>${escapeHtml(f.from||"-")}</span></div>
       <div class="bp-row"><label>TO</label><span>${escapeHtml(f.to||"-")}</span></div>
-      <div class="bp-row"><label>DATE</label><span>${dateStr}${timeStr}</span></div>
+      <div class="bp-row"><label>DATE</label><span>${dateStr}</span></div>
     </div>
     <div class="bp-seatbox">
-      <div class="bp-seat-col">
-        <div class="bp-seg-lbl">SEAT</div>
-        <div class="bp-seat-val">${escapeHtml(seatVal)}</div>
-      </div>
-      <div class="bp-pill-divider"></div>
-      <div class="bp-flight-col">
-        <div class="bp-seg-lbl">FLIGHT</div>
-        <div class="bp-flight-val">${escapeHtml(f.flightNo||"-")}</div>
-      </div>
+      <span class="bp-seg-lbl">SEAT</span>
+      <span class="bp-seat-val">${escapeHtml(seatVal)}</span>
+      <span class="bp-pill-divider"></span>
+      <span class="bp-seg-lbl">FLIGHT</span>
+      <span class="bp-flight-val">${escapeHtml(f.flightNo||"-")}</span>
     </div>
     <div class="bp-divider"></div>
     <div class="bp-foot">

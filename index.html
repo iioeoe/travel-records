@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>TRAVEL LOG · 나의 여행 기록</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="icon_뱅기01_32.png">
+<link rel="apple-touch-icon" href="icon_뱅기01_180.png">
+<meta name="theme-color" content="#1B2A4A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TRAVEL LOG">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1236,12 +1243,7 @@ function loadSyncConfig(){
 }
 function saveSyncConfig(cfg){localStorage.setItem(SYNC_KEY,JSON.stringify(cfg));}
 function clearSyncConfig(){localStorage.removeItem(SYNC_KEY);}
-const DEFAULT_SYNC_CONFIG={apiKey:"$2a$10$5M47Az7zQLXRpS/JJrVwYOwsPFBF2JU7s/HmOmDUY52nOqVH9qR3O",binId:"6a33ccbdda38895dfed67133"};
 let syncConfig=loadSyncConfig();
-if(!syncConfig){
-  syncConfig={...DEFAULT_SYNC_CONFIG};
-  saveSyncConfig(syncConfig);
-}
 
 function openSyncModal(){renderSyncModal();document.getElementById("syncOverlay").classList.add("open");}
 function closeSyncModal(){document.getElementById("syncOverlay").classList.remove("open");}

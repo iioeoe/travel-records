@@ -284,10 +284,11 @@ a{color:inherit;}
 .bp-seatbox{
   margin:6px 16px 0;background:var(--seatbg,var(--stamp-soft));border:1.5px solid var(--seatborder,var(--stamp));border-radius:999px;
   display:flex;flex-wrap:nowrap;align-items:baseline;justify-content:center;gap:8px;padding:9px 14px;
+  min-height:42px;
 }
 .bp-pill-divider{display:inline-block;width:1px;height:16px;background:var(--seatborder,var(--stamp));opacity:.35;transform:translateY(2px);flex:0 0 auto;}
 .bp-seg-lbl{font-size:8.5px;letter-spacing:1.5px;color:var(--seatborder,var(--stamp));font-weight:700;font-family:var(--font-mono);white-space:nowrap;}
-.bp-seat-val{font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--seatborder,var(--stamp));white-space:nowrap;}
+.bp-seat-val{font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--seatborder,var(--stamp));white-space:nowrap;min-width:0.6em;display:inline-block;}
 .bp-flight-val{font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--seatborder,var(--stamp));letter-spacing:.3px;white-space:nowrap;}
 .bp-divider{
   position:relative;height:1px;margin:50px 16px 0;
@@ -299,7 +300,7 @@ a{color:inherit;}
 }
 .bp-divider::before{left:-7px;}
 .bp-divider::after{right:-7px;}
-.bp-foot{padding:10px 16px 4px;}
+.bp-foot{padding:10px 16px 4px;min-height:26px;}
 .bp-tkno{font-family:var(--font-mono);font-size:10px;color:var(--ink-faint);letter-spacing:.3px;}
 .bp-brand-strip{display:flex;align-items:center;gap:8px;padding:10px 16px 16px;}
 .bp-monogram{
@@ -487,18 +488,18 @@ a{color:inherit;}
     <div class="modal-body">
       <form id="tripForm">
         <div class="field">
-          <label>국가</label>
+          <label>국가 *</label>
           <select id="f_country" required></select>
         </div>
         <div class="field-row">
           <div class="field">
-            <label>도시 / 지역</label>
+            <label>도시 / 지역 *</label>
             <input id="f_city" type="text" placeholder="예: 도쿄">
           </div>
         </div>
         <div class="field-row">
           <div class="field">
-            <label>시작일</label>
+            <label>시작일 * (연도만 필수)</label>
             <div class="date-input" id="f_start_wrap">
               <input class="di-y" type="text" inputmode="numeric" placeholder="YYYY" maxlength="4">
               <span>.</span>
@@ -800,14 +801,14 @@ document.getElementById("panelCloseBtn").addEventListener("click",()=>tripPanel.
 function boardingPassHTML(f,trip){
   const brand=AIRLINES[f.airline]||DEFAULT_AIRLINE;
   const dateStr=f.depDate?fmtBoardingDate(f.depDate):(trip.start?fmtBoardingDate(trip.start):"");
-  const seatVal=f.seatNo||"";
+  const seatVal=f.seatNo||"\u00A0";
   const seatVars=brand.seatBg?`--seatbg:${brand.seatBg};--seatborder:${brand.seatBorder};`:"";
   return `<div class="boarding-pass" style="--ac:${brand.c1};--ac2:${brand.c2};${seatVars}">
     <div class="bp-top"><span class="bp-tag">✈ BOARDING PASS</span></div>
     <div class="bp-body">
       <div class="bp-row"><label>FROM</label><span>${escapeHtml(f.from||"-")}</span></div>
       <div class="bp-row"><label>TO</label><span>${escapeHtml(f.to||"-")}</span></div>
-      <div class="bp-row"><label>DATE</label><span>${dateStr}</span></div>
+      <div class="bp-row"><label>DATE</label><span>${dateStr||"-"}</span></div>
     </div>
     <div class="bp-seatbox">
       <span class="bp-seg-lbl">SEAT</span>
@@ -818,7 +819,7 @@ function boardingPassHTML(f,trip){
     </div>
     <div class="bp-divider"></div>
     <div class="bp-foot">
-      <span class="bp-tkno">${escapeHtml(f.reservationNo||"")}${f.seatClass?" · "+escapeHtml(f.seatClass):""}</span>
+      <span class="bp-tkno">${escapeHtml(f.reservationNo||"\u00A0")}${f.seatClass?" · "+escapeHtml(f.seatClass):""}</span>
     </div>
     <div class="bp-brand-strip">
       <span class="bp-monogram">${escapeHtml((f.airline||"?").slice(0,1))}</span>
@@ -958,7 +959,7 @@ let currentRating=0;
 let currentPhoto=null;
 
 function populateCountrySelect(){
-  let html="";
+  let html=`<option value="">국가 선택</option>`;
   CONTINENT_ORDER.forEach(cont=>{
     const items=COUNTRIES.filter(c=>c.cont===cont);
     if(!items.length)return;
@@ -1138,13 +1139,22 @@ function getDateValue(container){
   if(!y||!m||!d)return "";
   return `${y.padStart(4,"0")}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;
 }
+function getDateValueLenient(container){
+  if(!container)return "";
+  const y=container.querySelector(".di-y").value;
+  if(!y||y.length<4)return "";
+  const m=container.querySelector(".di-m").value;
+  const d=container.querySelector(".di-d").value;
+  if(m&&d)return `${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;
+  if(m)return `${y}-${m.padStart(2,"0")}`;
+  return `${y}`;
+}
 function setDateValue(container,value){
   if(!container||!value)return;
   const parts=String(value).split("-");
-  if(parts.length<3)return;
-  container.querySelector(".di-y").value=parts[0];
-  container.querySelector(".di-m").value=parts[1];
-  container.querySelector(".di-d").value=parts[2];
+  container.querySelector(".di-y").value=parts[0]||"";
+  container.querySelector(".di-m").value=parts[1]||"";
+  container.querySelector(".di-d").value=parts[2]||"";
 }
 function wireTimeInput(container){
   if(!container)return;
@@ -1204,16 +1214,25 @@ window.deleteTrip=function(id){
 
 tripForm.addEventListener("submit",e=>{
   e.preventDefault();
-  if(!getDateValue(document.getElementById("f_start_wrap"))){
-    alert("시작일을 입력해주세요 (연도 4자리부터)");
+  if(!countrySelect.value){
+    alert("국가를 선택해주세요.");
+    return;
+  }
+  if(!document.getElementById("f_city").value.trim()){
+    alert("도시/지역을 입력해주세요.");
+    return;
+  }
+  const startVal=getDateValueLenient(document.getElementById("f_start_wrap"));
+  if(!startVal){
+    alert("시작일의 연도를 입력해주세요.");
     return;
   }
   const trip={
     id:editingId||uid(),
     countryCode:countrySelect.value,
     city:document.getElementById("f_city").value.trim(),
-    start:getDateValue(document.getElementById("f_start_wrap")),
-    end:getDateValue(document.getElementById("f_end_wrap")),
+    start:startVal,
+    end:getDateValueLenient(document.getElementById("f_end_wrap")),
     companion:document.getElementById("f_companion").value.trim(),
     purpose:document.getElementById("f_purpose").value,
     lat:document.getElementById("f_lat").value?parseFloat(document.getElementById("f_lat").value):null,
@@ -1376,12 +1395,27 @@ function fmtRange(s,e){
   return `${fs} → ${fmtDateShort(e)}`;
 }
 function fmtDateShort(d){
+  if(!d)return "";
+  const m=String(d).match(/^(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?$/);
+  if(m){
+    if(m[3])return `${m[1]}.${m[2]}.${m[3]}`;
+    if(m[2])return `${m[1]}.${m[2]}`;
+    return m[1];
+  }
   const dt=new Date(d);
   if(isNaN(dt))return d;
   return `${dt.getFullYear()}.${String(dt.getMonth()+1).padStart(2,"0")}.${String(dt.getDate()).padStart(2,"0")}`;
 }
 const BP_MONTHS=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
 function fmtBoardingDate(d){
+  if(!d)return "";
+  const m=String(d).match(/^(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?$/);
+  if(m){
+    const yy=m[1].slice(-2);
+    if(m[3])return `${m[3]}${BP_MONTHS[parseInt(m[2],10)-1]}${yy}`;
+    if(m[2])return `${BP_MONTHS[parseInt(m[2],10)-1]}${yy}`;
+    return m[1];
+  }
   const dt=new Date(d);
   if(isNaN(dt))return d;
   return `${String(dt.getDate()).padStart(2,"0")}${BP_MONTHS[dt.getMonth()]}${String(dt.getFullYear()).slice(-2)}`;

@@ -157,6 +157,7 @@ a{color:inherit;}
 .map-legend strong{color:var(--stamp);font-family:var(--font-mono);font-size:13.5px;}
 
 .plane-icon{
+  position:relative;
   width:30px;height:30px;border-radius:50%;
   background:var(--surface);border:2px solid var(--stamp);
   display:flex;align-items:center;justify-content:center;
@@ -165,6 +166,19 @@ a{color:inherit;}
   -webkit-tap-highlight-color:transparent;
   user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
 }
+.marker-badge{
+  position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;border-radius:50%;
+  background:var(--stamp);color:#fff;font-size:9px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;padding:0 3px;
+  border:1.5px solid var(--surface);font-family:var(--font-mono);
+}
+.panel-nav{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:10px;}
+.panel-nav-btn{
+  width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--surface);
+  color:var(--ink);font-size:16px;display:flex;align-items:center;justify-content:center;
+}
+.panel-nav-btn:disabled{opacity:.3;}
+.panel-nav-count{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-faint);letter-spacing:.5px;}
 .plane-icon span{display:block;transform:rotate(-15deg);pointer-events:none;}
 .leaflet-marker-icon{user-select:none;-webkit-user-select:none;}
 
@@ -744,13 +758,23 @@ function refreshMapStyle(){if(geoLayer)geoLayer.setStyle(styleCountry);}
 
 function renderMarkers(){
   markersLayer.clearLayers();
+  const groups={};
   state.trips.forEach(trip=>{
     const ci=countryInfo(trip.countryCode);
     const lat=trip.lat!=null?trip.lat:(ci?ci.lat:0);
     const lng=trip.lng!=null?trip.lng:(ci?ci.lng:0);
-    const icon=L.divIcon({className:"",html:'<div class="plane-icon"><span>✈️</span></div>',iconSize:[30,30],iconAnchor:[15,15]});
-    const marker=L.marker([lat,lng],{icon}).addTo(markersLayer);
-    marker.on("click",()=>openTripPanel(trip.id));
+    const key=`${lat.toFixed(2)},${lng.toFixed(2)}`;
+    (groups[key]=groups[key]||{lat,lng,trips:[]}).trips.push(trip);
+  });
+  Object.values(groups).forEach(g=>{
+    const sorted=[...g.trips].sort((a,b)=>new Date(b.start)-new Date(a.start));
+    const count=sorted.length;
+    const html=count>1
+      ?`<div class="plane-icon"><span>✈️</span><span class="marker-badge">${count}</span></div>`
+      :`<div class="plane-icon"><span>✈️</span></div>`;
+    const icon=L.divIcon({className:"",html,iconSize:[30,30],iconAnchor:[15,15]});
+    const marker=L.marker([g.lat,g.lng],{icon}).addTo(markersLayer);
+    marker.on("click",()=>openTripPanelGroup(sorted,0));
   });
 }
 
@@ -771,11 +795,35 @@ function refreshAll(){
 
 /* ---- trip detail panel ---- */
 const tripPanel=document.getElementById("tripPanel");
+let panelGroup=[];
+let panelIndex=0;
+
 function openTripPanel(tripId){
   const trip=state.trips.find(t=>t.id===tripId);
   if(!trip)return;
+  openTripPanelGroup([trip],0);
+}
+
+function openTripPanelGroup(trips,idx){
+  panelGroup=trips;
+  panelIndex=idx;
+  renderPanelContent();
+  tripPanel.classList.add("open");
+}
+
+function renderPanelContent(){
+  const trip=panelGroup[panelIndex];
+  if(!trip)return;
   const ci=countryInfo(trip.countryCode);
-  let html=`<h3 class="panel-title">${ci?ci.ko:trip.countryCode}${trip.city?" · "+trip.city:""}</h3>
+  let html="";
+  if(panelGroup.length>1){
+    html+=`<div class="panel-nav">
+      <button class="panel-nav-btn" id="panelPrevBtn" ${panelIndex===0?"disabled":""}>‹</button>
+      <span class="panel-nav-count">${panelIndex+1} / ${panelGroup.length}</span>
+      <button class="panel-nav-btn" id="panelNextBtn" ${panelIndex===panelGroup.length-1?"disabled":""}>›</button>
+    </div>`;
+  }
+  html+=`<h3 class="panel-title">${ci?ci.ko:trip.countryCode}${trip.city?" · "+trip.city:""}</h3>
   <div class="panel-sub">${fmtRange(trip.start,trip.end)}</div>`;
   html+=detailRows(trip);
   if(trip.memo)html+=`<div class="memo-box">${escapeHtml(trip.memo)}</div>`;
@@ -786,8 +834,31 @@ function openTripPanel(tripId){
     <button class="btn-delete" onclick="deleteTrip('${trip.id}')">삭제</button>
   </div>`;
   document.getElementById("panelContent").innerHTML=html;
-  tripPanel.classList.add("open");
+  if(panelGroup.length>1){
+    document.getElementById("panelPrevBtn").addEventListener("click",()=>panelNav(-1));
+    document.getElementById("panelNextBtn").addEventListener("click",()=>panelNav(1));
+  }
 }
+function panelNav(dir){
+  const next=panelIndex+dir;
+  if(next<0||next>=panelGroup.length)return;
+  panelIndex=next;
+  renderPanelContent();
+}
+let panelTouchStartX=null,panelTouchStartY=null;
+document.getElementById("panelContent").addEventListener("touchstart",e=>{
+  panelTouchStartX=e.touches[0].clientX;
+  panelTouchStartY=e.touches[0].clientY;
+},{passive:true});
+document.getElementById("panelContent").addEventListener("touchend",e=>{
+  if(panelTouchStartX==null||panelGroup.length<2)return;
+  const dx=e.changedTouches[0].clientX-panelTouchStartX;
+  const dy=e.changedTouches[0].clientY-panelTouchStartY;
+  if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){
+    panelNav(dx<0?1:-1);
+  }
+  panelTouchStartX=null;
+});
 function detailRows(trip){
   let rows="";
   if(trip.companion)rows+=row("동행",trip.companion);

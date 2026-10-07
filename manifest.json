@@ -10,7 +10,7 @@
   "icons": [
     {
       "src": "icon_travel.png",
-      "sizes": "946x946",
+      "sizes": "835x835",
       "type": "image/png",
       "purpose": "any maskable"
     }

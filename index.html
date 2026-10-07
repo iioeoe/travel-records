@@ -731,15 +731,44 @@ tabBtns.forEach(btn=>{
 /* ====================================================================
    MAP
 ==================================================================== */
+/* ---- 아메리카를 지도 오른쪽(경도 +360°)에 배치 ---- */
+const AMERICAS_SHIFT_LNG=-30; // 이 경도보다 서쪽이면 +360° 이동
+function shiftLng(lng){return lng<AMERICAS_SHIFT_LNG?lng+360:lng;}
+
+function shiftGeoJSON(geo){
+  const shiftCoords=c=>Array.isArray(c[0])?c.map(shiftCoords):[c[0]+360,c[1]];
+  const centerLng=poly=>{
+    let min=Infinity,max=-Infinity;
+    poly[0].forEach(p=>{min=Math.min(min,p[0]);max=Math.max(max,p[0]);});
+    return (min+max)/2;
+  };
+  const shiftPoly=poly=>centerLng(poly)<AMERICAS_SHIFT_LNG?shiftCoords(poly):poly;
+  return {
+    ...geo,
+    features:geo.features.filter(f=>f.id!=="ATA").map(f=>{
+      const g=f.geometry;
+      if(!g)return f;
+      if(g.type==="Polygon")return {...f,geometry:{...g,coordinates:shiftPoly(g.coordinates)}};
+      if(g.type==="MultiPolygon")return {...f,geometry:{...g,coordinates:g.coordinates.map(shiftPoly)}};
+      return f;
+    })
+  };
+}
+
 let map,geoLayer,markersLayer;
 function initMap(){
-  map=L.map("map",{zoomControl:true,attributionControl:false,minZoom:2,maxBounds:[[-85,-180],[85,180]],maxBoundsViscosity:1.0}).setView([20,20],2);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{maxZoom:18,noWrap:true}).addTo(map);
+  map=L.map("map",{
+    zoomControl:true,attributionControl:false,
+    minZoom:3,
+    maxBounds:[[-85,-35],[85,330]],
+    maxBoundsViscosity:1.0
+  }).setView([36,127],3);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{maxZoom:18}).addTo(map); // noWrap 제거
   markersLayer=L.layerGroup().addTo(map);
   fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json")
     .then(r=>r.json())
     .then(geo=>{
-      geoLayer=L.geoJSON(geo,{style:styleCountry}).addTo(map);
+      geoLayer=L.geoJSON(shiftGeoJSON(geo),{style:styleCountry}).addTo(map);
       geoLayer.bringToBack();
     })
     .catch(()=>{});
@@ -762,7 +791,7 @@ function renderMarkers(){
   state.trips.forEach(trip=>{
     const ci=countryInfo(trip.countryCode);
     const lat=trip.lat!=null?trip.lat:(ci?ci.lat:0);
-    const lng=trip.lng!=null?trip.lng:(ci?ci.lng:0);
+    const lng=shiftLng(trip.lng!=null?trip.lng:(ci?ci.lng:0));
     const key=`${lat.toFixed(2)},${lng.toFixed(2)}`;
     (groups[key]=groups[key]||{lat,lng,trips:[]}).trips.push(trip);
   });

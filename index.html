@@ -2,7 +2,26 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta id="vp" name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script>
+/* 큰 터치 화면(갤럭시 폴드 펼침 등)에서는 화면을 조금 축소해서 한눈에 보이게 해요.
+   UI_SCALE: 1보다 작을수록 더 작게 (0.88 = 약 12% 축소). 원래 크기로 쓰려면 1 로. */
+(function(){
+  var UI_SCALE=0.88;
+  var vp=document.getElementById("vp"),last="";
+  function apply(){
+    var sw=screen.width;
+    var coarse=window.matchMedia&&matchMedia("(pointer:coarse)").matches;
+    var c=(coarse&&sw>=700&&UI_SCALE<1)
+      ?"width="+Math.round(sw/UI_SCALE)+", viewport-fit=cover"
+      :"width=device-width, initial-scale=1.0, viewport-fit=cover";
+    if(c!==last){vp.setAttribute("content",c);last=c;}
+  }
+  apply();
+  window.addEventListener("orientationchange",apply);
+  window.addEventListener("resize",apply);
+})();
+</script>
 <title>TRAVEL LOG · 나의 여행 기록</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="32x32" href="icon_뱅기01_32.png">
@@ -449,6 +468,25 @@ a{color:inherit;}
 .sync-dot.off{background:var(--ink-faint);}
 .sync-help{font-size:11.5px;color:var(--ink-faint);margin:-2px 0 14px;line-height:1.55;}
 .sync-help a{color:var(--stamp);font-weight:600;}
+
+/* ============ 나라 이름 라벨 / 위치 검색 ============ */
+.country-label{background:none;border:none;pointer-events:none;}
+.country-label span{
+  position:absolute;transform:translate(-50%,-50%);white-space:nowrap;
+  font-size:11px;font-weight:600;letter-spacing:.2px;color:#5B6B85;
+  text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 2px #fff;
+}
+.country-label.visited span{color:var(--stamp);font-weight:700;}
+.geo-search{display:flex;gap:8px;margin-bottom:8px;}
+.geo-search input{flex:1;min-width:0;width:auto;}
+.geo-search button{flex:0 0 auto;padding:0 16px;border-radius:var(--radius-sm);border:none;background:var(--ink);color:#fff;font-size:13px;font-weight:700;}
+.geo-search button:disabled{opacity:.5;}
+.geo-results{margin-bottom:8px;}
+.geo-item{display:block;width:100%;text-align:left;padding:9px 12px;margin-bottom:6px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--surface);color:var(--ink);}
+.geo-item strong{display:block;font-size:13px;}
+.geo-item span{display:block;font-size:11px;color:var(--ink-faint);margin-top:2px;line-height:1.4;}
+.geo-msg{font-size:12px;color:var(--ink-faint);padding:4px 2px;}
+.geo-msg.ok{color:#3A8F5A;}
 </style>
 </head>
 <body>
@@ -569,6 +607,11 @@ a{color:inherit;}
         </div>
         <div class="field">
           <label>정확한 위치 (선택, 비워두면 국가 중심에 표시)</label>
+          <div class="geo-search">
+            <input id="geoQuery" type="text" placeholder="장소 검색 (예: 도쿄타워, Eiffel Tower)" autocomplete="off">
+            <button type="button" id="geoSearchBtn">검색</button>
+          </div>
+          <div class="geo-results" id="geoResults"></div>
           <div class="field-row">
             <input id="f_lat" type="number" step="0.0001" placeholder="위도">
             <input id="f_lng" type="number" step="0.0001" placeholder="경도">
@@ -753,11 +796,19 @@ tabBtns.forEach(btn=>{
 /* ====================================================================
    MAP
 ==================================================================== */
-/* ---- 배경 지도 타일 ----
-   CARTO 베이스맵은 API 키가 필수예요 (키 없으면 "API KEY REQUIRED" 워터마크).
-   무료 키 발급: https://carto.com/basemaps/apikey/  → 받은 키를 아래 따옴표 안에 붙여넣으세요.
-   키가 비어 있으면 OpenStreetMap 기본 타일로 대신 표시돼요. */
+/* ---- 배경 지도 ----
+   · 나라 이름은 지도 타일이 아니라 앱이 직접 그려요 (타일 속 글자는 나라별 현지 언어라서).
+   · CARTO 타일은 API 키가 필요해요. 키가 없으면 타일 없이 나라 윤곽선만 표시돼요.
+     무료 키: https://carto.com/basemaps/apikey/ → 받은 키를 아래 따옴표 안에 붙여넣기 */
 const CARTO_KEY="";
+const LABEL_LANG="ko";   // 나라 이름 언어: "ko" = 한글, "en" = 영어
+
+const EXTRA_KO=Object.fromEntries("AFG:아프가니스탄,AGO:앙골라,ALB:알바니아,ARE:아랍에미리트,ARG:아르헨티나,ARM:아르메니아,AZE:아제르바이잔,BDI:부룬디,BEL:벨기에,BEN:베냉,BFA:부르키나파소,BGD:방글라데시,BGR:불가리아,BHS:바하마,BIH:보스니아 헤르체고비나,BLR:벨라루스,BLZ:벨리즈,BOL:볼리비아,BRN:브루나이,BTN:부탄,BWA:보츠와나,CAF:중앙아프리카공화국,CIV:코트디부아르,CMR:카메룬,COD:콩고민주공화국,COG:콩고,CRI:코스타리카,CYP:키프로스,DJI:지부티,DZA:알제리,ECU:에콰도르,ERI:에리트레아,EST:에스토니아,ETH:에티오피아,FLK:포클랜드 제도,GAB:가봉,GEO:조지아,GHA:가나,GIN:기니,GMB:감비아,GNB:기니비사우,GNQ:적도기니,GRL:그린란드,GTM:과테말라,GUY:가이아나,HND:온두라스,HTI:아이티,IRN:이란,IRQ:이라크,JAM:자메이카,KGZ:키르기스스탄,KWT:쿠웨이트,LBN:레바논,LBR:라이베리아,LBY:리비아,LSO:레소토,LTU:리투아니아,LUX:룩셈부르크,LVA:라트비아,MDA:몰도바,MDG:마다가스카르,MKD:북마케도니아,MLI:말리,MNE:몬테네그로,MOZ:모잠비크,MRT:모리타니,MWI:말라위,NAM:나미비아,NCL:뉴칼레도니아,NER:니제르,NGA:나이지리아,NIC:니카라과,OMN:오만,PAK:파키스탄,PAN:파나마,PNG:파푸아뉴기니,PRI:푸에르토리코,PRK:북한,PRY:파라과이,RWA:르완다,ESH:서사하라,SDN:수단,SSD:남수단,SEN:세네갈,SLB:솔로몬 제도,SLE:시에라리온,SLV:엘살바도르,SOM:소말리아,SRB:세르비아,SUR:수리남,SVK:슬로바키아,SWZ:에스와티니,SYR:시리아,TCD:차드,TGO:토고,TJK:타지키스탄,TKM:투르크메니스탄,TLS:동티모르,TTO:트리니다드 토바고,TUN:튀니지,UGA:우간다,UKR:우크라이나,URY:우루과이,UZB:우즈베키스탄,VEN:베네수엘라,VUT:바누아투,YEM:예멘,ZMB:잠비아,ZWE:짐바브웨,PSE:팔레스타인,CS-KM:코소보,ATF:프랑스령 남방 지역,BMU:버뮤다,GUF:프랑스령 기아나,MLT:몰타,Northern Cyprus:북키프로스,Somaliland:소말릴란드".split(",").map(x=>x.split(":")));
+function countryLabelName(f){
+  if(LABEL_LANG!=="ko")return f.properties.name;
+  const ci=countryInfo(f.id);
+  return (ci&&ci.ko)||EXTRA_KO[f.id]||EXTRA_KO[f.properties.name]||f.properties.name;
+}
 
 /* ---- 아메리카를 지도 오른쪽(경도 +360°)에 배치 ---- */
 const AMERICAS_SHIFT_LNG=-30; // 이 경도보다 서쪽이면 +360° 이동
@@ -783,34 +834,86 @@ function shiftGeoJSON(geo){
   };
 }
 
+/* ---- 나라 이름 라벨 (줌에 따라 큰 나라부터 표시) ---- */
+let labelLayer=null,labelItems=[];
+function buildCountryLabels(geo){
+  labelItems=[];
+  geo.features.forEach(f=>{
+    const g=f.geometry;
+    if(!g)return;
+    const polys=g.type==="Polygon"?[g.coordinates]:(g.type==="MultiPolygon"?g.coordinates:[]);
+    let best=null,bestArea=0;
+    polys.forEach(poly=>{
+      let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity;
+      poly[0].forEach(p=>{x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1]);});
+      const a=(x1-x0)*(y1-y0);
+      if(a>bestArea){bestArea=a;best={lat:(y0+y1)/2,lng:(x0+x1)/2};}
+    });
+    if(!best)return;
+    labelItems.push({id:f.id,name:countryLabelName(f),lat:best.lat,lng:best.lng,area:bestArea});
+  });
+  refreshLabels();
+}
+function refreshLabels(){
+  if(!map||!labelLayer)return;
+  labelLayer.clearLayers();
+  const minArea=2500/Math.pow(4,map.getZoom());
+  const view=map.getBounds().pad(0.2);
+  const visited=visitedCodes();
+  labelItems.forEach(it=>{
+    if(it.area<minArea||!view.contains([it.lat,it.lng]))return;
+    const cls="country-label"+(visited.includes(it.id)?" visited":"");
+    L.marker([it.lat,it.lng],{
+      pane:"labels",interactive:false,keyboard:false,
+      icon:L.divIcon({className:cls,html:"<span>"+escapeHtml(it.name)+"</span>",iconSize:[0,0]})
+    }).addTo(labelLayer);
+  });
+}
+
 let map,geoLayer,markersLayer;
+/* 넓은 화면(폴드 펼침 등)에서는 세계 전체가 한눈에 들어오게 맞춰요 */
+const WORLD_BOUNDS=L.latLngBounds([[-58,-35],[82,330]]);
+function applyMapFit(initial){
+  if(!map)return;
+  if(map.getSize().x>=700){
+    const z=map.getBoundsZoom(WORLD_BOUNDS,false);
+    map.setMinZoom(Math.min(3,z));
+    if(initial)map.setView(WORLD_BOUNDS.getCenter(),z,{animate:false});
+  }else{
+    map.setMinZoom(3);
+  }
+}
 function initMap(){
   map=L.map("map",{
     zoomControl:true,attributionControl:false,
+    zoomSnap:0.25,
     minZoom:3,
     maxBounds:[[-85,-35],[85,330]],
     maxBoundsViscosity:1.0
   }).setView([36,127],3);
-  // noWrap 제거 (아메리카를 오른쪽에 반복 표시하기 위함)
+  map.createPane("labels");
+  const lp=map.getPane("labels");
+  lp.style.zIndex=450;lp.style.pointerEvents="none";
+  // noWrap 없음 (아메리카를 오른쪽에 이어 붙이기 위함). 글자 없는 타일만 사용
   if(CARTO_KEY){
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key="+encodeURIComponent(CARTO_KEY),{
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png?key="+encodeURIComponent(CARTO_KEY),{
       maxZoom:18,
       attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>'
     }).addTo(map);
-  }else{
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{
-      maxZoom:18,
-      attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
   }
-  // 출처 표기는 왼쪽 아래에 작게 (+ 버튼과 겹치지 않게)
   L.control.attribution({position:"bottomleft",prefix:false}).addTo(map);
   markersLayer=L.layerGroup().addTo(map);
+  labelLayer=L.layerGroup().addTo(map);
+  map.on("zoomend moveend",refreshLabels);
+  map.on("resize",()=>applyMapFit(false));
+  applyMapFit(true);
   fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json")
     .then(r=>r.json())
     .then(geo=>{
-      geoLayer=L.geoJSON(shiftGeoJSON(geo),{style:styleCountry}).addTo(map);
+      const shifted=shiftGeoJSON(geo);
+      geoLayer=L.geoJSON(shifted,{style:styleCountry}).addTo(map);
       geoLayer.bringToBack();
+      buildCountryLabels(shifted);
     })
     .catch(()=>{});
 }
@@ -824,7 +927,7 @@ function styleCountry(feature){
     weight:visited?1.4:0.6,
   };
 }
-function refreshMapStyle(){if(geoLayer)geoLayer.setStyle(styleCountry);}
+function refreshMapStyle(){if(geoLayer)geoLayer.setStyle(styleCountry);refreshLabels();}
 
 function renderMarkers(){
   markersLayer.clearLayers();
@@ -1147,6 +1250,7 @@ function resetForm(){
   updateRatingUI();
   document.getElementById("photoPreview").innerHTML="사진 없음";
   document.getElementById("flightsFieldArea").innerHTML="";
+  document.getElementById("geoResults").innerHTML="";
 }
 
 /* ---- dynamic flight blocks ---- */
@@ -1323,6 +1427,42 @@ function setTimeValue(container,value){
 }
 wireDateInput(document.getElementById("f_start_wrap"));
 wireDateInput(document.getElementById("f_end_wrap"));
+
+/* ---- 위치 검색 (OpenStreetMap Nominatim, 키 불필요) ---- */
+async function geoSearch(){
+  const q=document.getElementById("geoQuery").value.trim();
+  const box=document.getElementById("geoResults");
+  const btn=document.getElementById("geoSearchBtn");
+  if(!q){box.innerHTML="";return;}
+  box.innerHTML='<div class="geo-msg">검색 중...</div>';
+  btn.disabled=true;
+  try{
+    const res=await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&accept-language=ko&q="+encodeURIComponent(q));
+    if(!res.ok)throw new Error("http "+res.status);
+    const list=await res.json();
+    if(!list.length){box.innerHTML='<div class="geo-msg">검색 결과가 없어요. 다른 이름이나 영어로 검색해 보세요.</div>';return;}
+    box.innerHTML=list.map((r,i)=>{
+      const title=r.name||String(r.display_name).split(",")[0];
+      return `<button type="button" class="geo-item" data-i="${i}"><strong>${escapeHtml(title)}</strong><span>${escapeHtml(r.display_name)}</span></button>`;
+    }).join("");
+    box.querySelectorAll(".geo-item").forEach(el=>el.addEventListener("click",()=>{
+      const r=list[parseInt(el.dataset.i,10)];
+      const lat=parseFloat(r.lat),lng=parseFloat(r.lon);
+      document.getElementById("f_lat").value=lat.toFixed(4);
+      document.getElementById("f_lng").value=lng.toFixed(4);
+      const title=r.name||String(r.display_name).split(",")[0];
+      box.innerHTML=`<div class="geo-msg ok">✓ ${escapeHtml(title)} 위치가 입력됐어요 (${lat.toFixed(4)}, ${lng.toFixed(4)})</div>`;
+    }));
+  }catch(err){
+    box.innerHTML='<div class="geo-msg">검색에 실패했어요. 잠시 후 다시 시도하거나 위도·경도를 직접 입력해 주세요.</div>';
+  }finally{
+    btn.disabled=false;
+  }
+}
+document.getElementById("geoSearchBtn").addEventListener("click",geoSearch);
+document.getElementById("geoQuery").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){e.preventDefault();geoSearch();}
+});
 
 /* ---- edit / delete ---- */
 window.editTrip=function(id){
@@ -1582,7 +1722,7 @@ if(syncConfig){
     }
   }).catch(()=>{ /* offline — keep showing the local cached copy */ });
 }
-window.addEventListener("load",()=>{setTimeout(()=>map&&map.invalidateSize(),200);});
+window.addEventListener("load",()=>{setTimeout(()=>{if(map){map.invalidateSize();applyMapFit(true);}},200);});
 </script>
 </body>
 </html>

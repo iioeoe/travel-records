@@ -922,8 +922,8 @@ function visitedCodes(){return [...new Set(state.trips.map(t=>t.countryCode))];}
 function styleCountry(feature){
   const visited=visitedCodes().includes(feature.id);
   return {
-    fillColor:visited?"#B5483D":"#FFFFFF",
-    fillOpacity:visited?0.45:0.4,
+    fillColor:visited?"#D7A396":"#F3EEDF", /* 대륙: 베이지 / 방문국: 베이지 위에 붉은 톤 */
+    fillOpacity:1,
     color:visited?"#B5483D":"#D8D0BD",
     weight:visited?1.4:0.6,
   };

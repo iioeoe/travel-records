@@ -1166,7 +1166,20 @@ function drawContinentChart(codes){
   charts.continent=new Chart(document.getElementById("continentChart"),{
     type:"doughnut",
     data:{labels,datasets:[{data,backgroundColor:labels.map(l=>CONTINENT_COLORS[l]||"#93A0B5"),borderWidth:0}]},
-    options:{plugins:{legend:{position:"bottom",labels:{font:{size:11},color:"#5B6B85"}}}}
+    options:{plugins:{legend:{
+      position:"right",align:"center",
+      labels:{
+        font:{size:12},color:"#5B6B85",padding:12,boxWidth:10,boxHeight:10,usePointStyle:true,pointStyle:"circle",
+        generateLabels:chart=>{
+          const ds=chart.data.datasets[0];
+          return chart.data.labels.map((l,i)=>({
+            text:l+"  "+ds.data[i],
+            fillStyle:ds.backgroundColor[i],strokeStyle:ds.backgroundColor[i],lineWidth:0,
+            fontColor:"#5B6B85",index:i,hidden:!chart.getDataVisibility(i)
+          }));
+        }
+      }
+    }}}
   });
 }
 function drawAirlineChart(){
@@ -1176,7 +1189,7 @@ function drawAirlineChart(){
   if(charts.airline)charts.airline.destroy();
   charts.airline=new Chart(document.getElementById("airlineChart"),{
     type:"bar",
-    data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:"#B5483D",borderRadius:6}]},
+    data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:"#6FA8E7",borderRadius:6}]},
     options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{ticks:{precision:0,color:"#93A0B5"}},y:{ticks:{color:"#5B6B85",font:{size:11.5}}}}}
   });
 }

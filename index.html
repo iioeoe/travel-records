@@ -62,7 +62,8 @@
   --ocean:#CFE3EF; /* 지도 바다색 */
   --tabbar-h:70px;
   --tab-off:#8A97B0;
-  --tab-line:#B5483D; /* 선택 메뉴 하단 라인 색 (보라 느낌: #B79CED) */
+  --tab-line:#FF6FB7; /* 선택 메뉴 하단 라인 색 */
+  --fab-bg:#FF6FB7; /* 여행 추가 + 버튼 색 */
   --topbar-h:88px;
 }
 *{box-sizing:border-box;}
@@ -141,7 +142,7 @@ a{color:inherit;}
 .fab{
   position:absolute;right:18px;bottom:calc(var(--tabbar-h) + 18px + env(safe-area-inset-bottom));
   width:54px;height:54px;border-radius:50%;
-  background:var(--stamp);color:#fff;border:none;
+  background:var(--fab-bg);color:#fff;border:none;
   font-size:26px;font-weight:300;
   box-shadow:var(--shadow-md);
   display:flex;align-items:center;justify-content:center;
@@ -736,6 +737,14 @@ const COUNTRIES = [
 {code:"PYF",ko:"프랑스령 폴리네시아",cont:"오세아니아",lat:-17.7,lng:-149.4},
 ];
 const CONTINENT_ORDER=["아시아","유럽","북미","남미","아프리카","오세아니아"];
+const CONTINENT_COLORS={
+  "아시아":"#A89BD9",
+  "유럽":"#F7C66D",
+  "북미":"#FF9F8A",
+  "남미":"#7BC4A7",
+  "아프리카":"#1B2A4A",
+  "오세아니아":"#5DA7E0"
+};
 
 const AIRLINES = {
   "대한항공":{c1:"#57BBEC",c2:"#97C5DF",seatBg:"#DDF1FA",seatBorder:"#061767"},
@@ -1156,7 +1165,7 @@ function drawContinentChart(codes){
   if(charts.continent)charts.continent.destroy();
   charts.continent=new Chart(document.getElementById("continentChart"),{
     type:"doughnut",
-    data:{labels,datasets:[{data,backgroundColor:["#B5483D","#C9A227","#1B2A4A","#5B6B85","#7E1248","#3A8F8A"],borderWidth:0}]},
+    data:{labels,datasets:[{data,backgroundColor:labels.map(l=>CONTINENT_COLORS[l]||"#93A0B5"),borderWidth:0}]},
     options:{plugins:{legend:{position:"bottom",labels:{font:{size:11},color:"#5B6B85"}}}}
   });
 }

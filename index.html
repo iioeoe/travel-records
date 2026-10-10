@@ -528,7 +528,7 @@ a{color:inherit;}
 .dd-sec{font-family:'Jua',var(--font-body);font-size:18px;margin:22px 0 8px;display:inline-block;border-bottom:3px solid #FF9AC9;line-height:1.2;}
 .dd-line{font-family:'Gaegu',cursive;font-weight:700;font-size:20px;line-height:34px;padding-left:10px;color:var(--ink);}
 .dd-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow-sm);margin-bottom:16px;}
-.dd-card h3{font-family:'Jua',var(--font-body);font-size:18px;font-weight:400;margin-bottom:6px;}
+.dd-card h3{display:inline-flex;align-items:center;gap:6px;font-family:'Jua',var(--font-body);font-size:18px;font-weight:400;margin-bottom:10px;border-bottom:3px solid #FF9AC9;line-height:1.3;}
 .dd-row{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;}
 .dd-row:last-child{border-bottom:0;}
 .dd-row label{width:64px;flex:0 0 auto;color:var(--ink-faint);}
@@ -539,6 +539,26 @@ a{color:inherit;}
 .dd-city{font-family:'Gaegu',cursive;font-weight:700;font-size:26px;color:#FF6FB7;text-align:right;margin-top:10px;}
 .dd-actions{display:flex;gap:8px;margin-top:26px;}
 .dd-actions button{flex:1;padding:12px;border-radius:999px;font-size:13px;font-weight:700;}
+
+/* 여행기록 페이지 전환 + 준비물 */
+.dd-top{display:flex;align-items:center;justify-content:space-between;}
+.dd-edit{border:0;background:none;color:var(--ink-soft);font-size:13px;font-weight:600;padding:6px 0;}
+.dd-pages{display:flex;gap:6px;margin:6px 0 4px;}
+.dd-pg{flex:1;max-width:130px;padding:8px 6px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.85);color:var(--ink-soft);font-size:12.5px;font-weight:700;}
+.dd-pg.on{background:#FF6FB7;border-color:#FF6FB7;color:#fff;}
+.dd-page{display:none;}
+.dd-page.on{display:block;}
+.pk-head{display:flex;align-items:center;justify-content:space-between;margin:14px 0 8px;}
+.pk-cnt{font-family:'Gaegu',cursive;font-weight:700;font-size:20px;color:#FF6FB7;}
+.pk-item{display:flex;align-items:center;gap:12px;min-height:34px;padding:0 2px;font-family:'Gaegu',cursive;font-weight:700;font-size:22px;line-height:34px;color:var(--ink);}
+.pk-box{flex:0 0 22px;width:22px;height:22px;border:2px solid var(--ink);border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0;}
+.pk-item.done .pk-box{background:#FF6FB7;border-color:#FF6FB7;}
+.pk-item.done .pk-tx{text-decoration:line-through;color:var(--ink-faint);}
+.pk-tx{flex:1;min-width:0;word-break:break-all;}
+.pk-del{border:0;background:none;color:var(--ink-faint);font-size:16px;padding:0 4px;}
+.pk-add{display:flex;gap:8px;margin-top:16px;}
+.pk-add input{flex:1;min-width:0;padding:11px 13px;border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff;font-size:14px;color:var(--ink);}
+.pk-add button{padding:0 16px;border:0;border-radius:var(--radius-sm);background:var(--ink);color:#fff;font-size:13px;font-weight:700;}
 </style>
 </head>
 <body>
@@ -1810,6 +1830,7 @@ function escapeAttr(s){return escapeHtml(s);}
 const STAMP_COLORS=["#C0392B","#2F5D9E","#1F9E8F","#7A4FA0","#B5483D","#2A8C8C"];
 const WEEKDAYS=["일","월","화","수","목","금","토"];
 let diaryId=null;
+let diaryPage=0;
 function hashStr(str){let h=0;for(let i=0;i<str.length;i++)h=(h*31+str.charCodeAt(i))|0;return Math.abs(h);}
 function parseFullDate(v){const m=String(v||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?new Date(+m[1],+m[2]-1,+m[3]):null;}
 
@@ -1840,6 +1861,7 @@ function renderDiary(){
 }
 function openDiary(id){
   diaryId=id;
+  diaryPage=0;
   renderDiaryDetail();
   const el=document.getElementById("diaryDetail");
   el.classList.add("open");el.scrollTop=0;
@@ -1899,24 +1921,102 @@ function routeMapSVG(t){
   const p2=rmXY(lng,lat),p1=rmXY(126.44,37.46);
   const far=Math.hypot(p2[0]-p1[0],p2[1]-p1[1])>24;
   const cx=(p1[0]+p2[0])/2,cy=Math.min(p1[1],p2[1])-Math.abs(p2[0]-p1[0])*0.22-8;
-  const clampX=x=>Math.min(RM.W-44,Math.max(44,x));
-  const txt=(x,y,s)=>`<text x="${clampX(x).toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A" stroke="#fff" stroke-width="3" paint-order="stroke" font-family="Pretendard,sans-serif">${escapeHtml(s)}</text>`;
-  const place=(t.city||(ci?ci.ko:""))+(ci?" ("+ci.ko+")":"");
+  const f=n=>n.toFixed(1);
+  const clampX=x=>Math.min(RM.W-34,Math.max(34,x));
+  const lab=(p,l1,l2)=>{
+    const below=p[1]+34<RM.H;
+    const y=below?p[1]+15:p[1]-(l2?24:12);
+    return `<text text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A" stroke="#fff" stroke-width="3" paint-order="stroke" font-family="Pretendard,sans-serif"><tspan x="${f(clampX(p[0]))}" y="${f(y)}">${escapeHtml(l1)}</tspan>${l2?`<tspan x="${f(clampX(p[0]))}" dy="12.5">(${escapeHtml(l2)})</tspan>`:""}</text>`;
+  };
+  const pin=p=>`<circle cx="${f(p[0])}" cy="${f(p[1])}" r="4.6" fill="#FF6FB7" stroke="#fff" stroke-width="1.6"/>`;
+  const country=ci?ci.ko:"";
+  const mx=0.25*p1[0]+0.5*cx+0.25*p2[0],my=0.25*p1[1]+0.5*cy+0.25*p2[1];
+  const ang=Math.atan2(p2[1]-p1[1],p2[0]-p1[0])*180/Math.PI+90;
+  const PLANE="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z";
+  const plane=far?`<g transform="translate(${f(mx)} ${f(my)}) rotate(${f(ang)}) scale(1.1) translate(-12 -12.5)"><path d="${PLANE}" fill="none" stroke="#fff" stroke-width="4.5" stroke-linejoin="round"/><path d="${PLANE}" fill="#FFE3F1" stroke="#FF6FB7" stroke-width="1.6" stroke-linejoin="round"/></g>`:"";
+  /* 손그림 나침판 + 낙서 웃는 얼굴 */
+  const kx=RM.W-30,ky=RM.H-30,N="#1B2A4A";
+  const compass=`<g font-family="Pretendard,sans-serif" font-weight="700" font-size="7.5" fill="${N}" text-anchor="middle">
+    <circle cx="${kx}" cy="${ky}" r="13" fill="rgba(255,255,255,.7)"/>
+    <path d="M${kx-13} ${ky}C${kx-13} ${ky-7.5} ${kx-7} ${ky-13.4} ${kx+.5} ${ky-13}S${kx+13.2} ${ky-7} ${kx+13} ${ky+.5}S${kx+7} ${ky+13.3} ${kx-.5} ${ky+13.2}S${kx-13.3} ${ky+7} ${kx-13} ${ky}Z" fill="none" stroke="${N}" stroke-width="1.4" stroke-linecap="round"/>
+    <path d="M${kx} ${ky-10}L${kx+3.2} ${ky}L${kx-3.2} ${ky}Z" fill="#FF6FB7"/>
+    <path d="M${kx} ${ky+10}L${kx+3.2} ${ky}L${kx-3.2} ${ky}Z" fill="#fff" stroke="${N}" stroke-width=".9" stroke-linejoin="round"/>
+    <text x="${kx}" y="${ky-16.5}">N</text><text x="${kx}" y="${ky+23.5}">S</text>
+    <text x="${kx+19.5}" y="${ky+2.6}">E</text><text x="${kx-19.5}" y="${ky+2.6}">W</text>
+    <g transform="translate(${kx-52} ${ky+6})" fill="none" stroke="${N}" stroke-width="1.2" stroke-linecap="round">
+      <circle r="6.5"/><circle cx="-2.3" cy="-1.6" r=".7" fill="${N}"/><circle cx="2.3" cy="-1.6" r=".7" fill="${N}"/>
+      <path d="M-3.2 1.8Q0 5 3.2 1.8"/><path d="M-11 -4l-3-1.5M-11.5 1l-3.2.4M11 -4l3-1.5M11.5 1l3.2.4"/>
+    </g>
+  </g>`;
   return `<svg class="dd-map" viewBox="0 0 ${RM.W} ${RM.H}" role="img" aria-label="여행 경로 지도">
     <rect width="${RM.W}" height="${RM.H}" fill="#CFE3EF"/>
     <path d="${worldPathD()}" fill="#F3EEDF" stroke="#D8D0BD" stroke-width=".4"/>
-    ${far?`<path d="M${p1[0].toFixed(1)} ${p1[1].toFixed(1)}Q${cx.toFixed(1)} ${cy.toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}" fill="none" stroke="#FF6FB7" stroke-width="1.6" stroke-dasharray="4 3" stroke-linecap="round"/>
-    <circle cx="${p1[0].toFixed(1)}" cy="${p1[1].toFixed(1)}" r="3.6" fill="#FF6FB7" stroke="#fff" stroke-width="1.2"/>
-    ${txt(p1[0],p1[1]+17,"인천 (한국)")}`:""}
-    <circle cx="${p2[0].toFixed(1)}" cy="${p2[1].toFixed(1)}" r="3.6" fill="#B5483D" stroke="#fff" stroke-width="1.2"/>
-    ${txt(p2[0],p2[1]-9,place)}
+    ${far?`<path d="M${f(p1[0])} ${f(p1[1])}Q${f(cx)} ${f(cy)} ${f(p2[0])} ${f(p2[1])}" fill="none" stroke="#FF6FB7" stroke-width="1.8" stroke-dasharray="4 3" stroke-linecap="round"/>
+    ${pin(p1)}${lab(p1,"인천","한국")}`:""}
+    ${plane}
+    ${pin(p2)}${lab(p2,t.city||country,t.city?country:"")}
+    ${compass}
   </svg>`;
 }
+
+/* ---- 페이지 전환 / 준비물 ---- */
+function setDiaryPage(n){
+  diaryPage=n;
+  const el=document.getElementById("diaryDetail");
+  el.querySelectorAll(".dd-page").forEach((pg,i)=>pg.classList.toggle("on",i===n));
+  el.querySelectorAll(".dd-pg").forEach((b,i)=>b.classList.toggle("on",i===n));
+  el.scrollTop=0;
+}
+function diaryTrip(){return state.trips.find(x=>x.id===diaryId);}
+function persistDiary(){saveData();autoPushSync();renderDiaryDetail();}
+function addPacking(){
+  const t=diaryTrip(),inp=document.getElementById("pkInput");
+  if(!t||!inp)return;
+  const v=inp.value.trim();
+  if(!v)return;
+  (t.packing=t.packing||[]).push({t:v,d:false});
+  inp.value="";
+  persistDiary();
+  const n=document.getElementById("pkInput");
+  if(n)n.focus();
+}
+function togglePacking(i){
+  const t=diaryTrip();
+  if(!t||!t.packing||!t.packing[i])return;
+  t.packing[i].d=!t.packing[i].d;
+  persistDiary();
+}
+function deletePacking(i){
+  const t=diaryTrip();
+  if(!t||!t.packing)return;
+  t.packing.splice(i,1);
+  persistDiary();
+}
+(function(){
+  const el=document.getElementById("diaryDetail");
+  let sx=null,sy=null,skip=false;
+  el.addEventListener("touchstart",e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;skip=!!e.target.closest(".dy-strip,input,textarea");},{passive:true});
+  el.addEventListener("touchend",e=>{
+    if(sx==null)return;
+    const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+    const bad=skip;sx=null;
+    if(bad)return;
+    if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.6){
+      const n=diaryPage+(dx<0?1:-1);
+      if(n>=0&&n<3)setDiaryPage(n);
+    }
+  },{passive:true});
+})();
+
+const CHECK_SVG='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
+const PIN_SVG='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1B2A4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
 
 function renderDiaryDetail(){
   const el=document.getElementById("diaryDetail");
   const t=state.trips.find(x=>x.id===diaryId);
   if(!t){closeDiary();return;}
+  const st=el.scrollTop;
+  const keep=(document.getElementById("pkInput")||{}).value||"";
   const ci=countryInfo(t.countryCode);
   const country=ci?ci.ko:t.countryCode;
   const place=t.city||country;
@@ -1930,27 +2030,45 @@ function renderDiaryDetail(){
   if(t.rating)info.push(["만족도","★".repeat(t.rating)+"☆".repeat(5-t.rating)]);
   const rows=diaryTimeline(t);
   const titleText="To. "+String(t.dCity||place).toUpperCase();
+  const pk=t.packing||[];
+  const done=pk.filter(x=>x.d).length;
+  const on=i=>diaryPage===i?" on":"";
   el.innerHTML=`<div class="dd-wrap">
-    <button class="dd-back" onclick="closeDiary()">← 목록으로 돌아가기</button>
-    <div class="dd-grid">
-      <div>
-        <div class="dd-title" data-t="${escapeAttr(titleText)}">${escapeHtml(titleText)}</div>
-        <div class="dd-sub">${escapeHtml(t.dSub||"잊지 못할 순간들을 모아둔 기록")}</div>
-        ${t.dTitle?`<div class="dd-tag">〈 ${escapeHtml(t.dTitle)} 〉</div>`:""}
-        ${diaryDayStrip(t)}
-        ${rows.length?`<div class="dd-sec">여행 타임라인</div>${rows.map(r=>`<div class="dd-line">${r}</div>`).join("")}`:""}
-      </div>
-      <div>
-        <div class="dd-card"><h3>여행 정보</h3>${info.map(r=>`<div class="dd-row"><label>${r[0]}</label><span>${r[1]}</span></div>`).join("")}</div>
-        <div class="dd-card"><h3>여행 경로</h3>${routeMapSVG(t)}</div>
-        ${t.memo?`<div class="dd-postit">${escapeHtml(t.memo)}</div><div class="dd-city">${escapeHtml(place)}</div>`:""}
-      </div>
+    <div class="dd-top">
+      <button class="dd-back" onclick="closeDiary()">← 목록으로 돌아가기</button>
+      <button class="dd-edit" onclick="editTrip('${t.id}')">수정</button>
     </div>
-    <div class="dd-actions">
-      <button class="btn-edit" onclick="editTrip('${t.id}')">수정</button>
-      <button class="btn-delete" onclick="deleteTrip('${t.id}')">삭제</button>
-    </div>
+    <div class="dd-pages">${["기록","준비물","정보"].map((n,i)=>`<button class="dd-pg${on(i)}" onclick="setDiaryPage(${i})">${i+1}. ${n}</button>`).join("")}</div>
+
+    <section class="dd-page${on(0)}">
+      <div class="dd-title" data-t="${escapeAttr(titleText)}">${escapeHtml(titleText)}</div>
+      <div class="dd-sub">${escapeHtml(t.dSub||"잊지 못할 순간들을 모아둔 기록")}</div>
+      ${t.dTitle?`<div class="dd-tag">〈 ${escapeHtml(t.dTitle)} 〉</div>`:""}
+      ${diaryDayStrip(t)}
+      ${rows.length?`<div class="dd-sec">여행 타임라인</div>${rows.map(r=>`<div class="dd-line">${r}</div>`).join("")}`:""}
+    </section>
+
+    <section class="dd-page${on(1)}">
+      <div class="pk-head"><div class="dd-sec" style="margin:0">준비물</div><div class="pk-cnt">${done} / ${pk.length}</div></div>
+      ${pk.length?pk.map((x,i)=>`<div class="pk-item${x.d?" done":""}"><button class="pk-box" aria-label="${escapeAttr(x.t)} 체크" aria-pressed="${x.d?"true":"false"}" onclick="togglePacking(${i})">${x.d?CHECK_SVG:""}</button><span class="pk-tx">${escapeHtml(x.t)}</span><button class="pk-del" aria-label="삭제" onclick="deletePacking(${i})">✕</button></div>`).join(""):'<div class="dd-line" style="color:var(--ink-faint)">챙길 물건을 추가해 보세요</div>'}
+      <div class="pk-add"><input id="pkInput" type="text" placeholder="준비물 추가 (예: 여권)" autocomplete="off" value="${escapeAttr(keep)}" onkeydown="if(event.key==='Enter'){event.preventDefault();addPacking();}"><button type="button" onclick="addPacking()">추가</button></div>
+    </section>
+
+    <section class="dd-page${on(2)}">
+      <div class="dd-grid">
+        <div>
+          <div class="dd-card"><h3>여행 정보</h3>${info.map(r=>`<div class="dd-row"><label>${r[0]}</label><span>${r[1]}</span></div>`).join("")}</div>
+          ${t.memo?`<div class="dd-postit">${escapeHtml(t.memo)}</div><div class="dd-city">${escapeHtml(place)}</div>`:""}
+        </div>
+        <div class="dd-card"><h3>${PIN_SVG}여행 경로</h3>${routeMapSVG(t)}</div>
+      </div>
+      <div class="dd-actions">
+        <button class="btn-edit" onclick="editTrip('${t.id}')">수정</button>
+        <button class="btn-delete" onclick="deleteTrip('${t.id}')">삭제</button>
+      </div>
+    </section>
   </div>`;
+  el.scrollTop=st;
 }
 
 /* ====================================================================

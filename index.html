@@ -517,10 +517,12 @@ a{color:inherit;}
 .dd-back{border:0;background:none;color:var(--ink);font-size:13.5px;font-weight:600;padding:6px 0;}
 .dd-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:6px;}
 @media (min-width:768px){.dd-grid{grid-template-columns:1.25fr 1fr;gap:26px;align-items:start;}}
-.dd-title{position:relative;isolation:isolate;font-family:'Modak','Bagel Fat One',sans-serif;font-size:clamp(38px,10.5vw,60px);line-height:1.1;color:var(--ink);paint-order:stroke fill;-webkit-text-stroke:8px #fff;margin:14px 0 8px;padding-top:6px;word-break:keep-all;}
-.dd-title::before{content:attr(data-t);position:absolute;left:0;right:0;top:6px;z-index:-1;color:var(--ink);-webkit-text-stroke:15px var(--ink);}
+.dd-title{position:relative;isolation:isolate;font-family:'Modak','Bagel Fat One',sans-serif;font-size:clamp(38px,10.5vw,60px);line-height:1.1;margin:36px 0 8px;padding-top:6px;word-break:keep-all;}
+.dd-title .fg{position:relative;display:block;color:var(--ink);paint-order:stroke fill;-webkit-text-stroke:8px #fff;}
+.dd-title .bg{position:absolute;left:0;right:0;top:6px;z-index:-1;color:var(--ink);-webkit-text-stroke:15px var(--ink);}
+.dd-title .to{font-size:.7em;}
 .dd-sub{font-family:'Gaegu',cursive;font-weight:700;font-size:20px;color:var(--ink);}
-.dd-tag{font-family:'Jua',var(--font-body);font-size:26px;color:#FF6FB7;margin:36px 0 8px;}
+.dd-tag{font-family:'Jua',var(--font-body);font-size:26px;color:#FF6FB7;margin:72px 0 8px;}
 .dy-strip{display:flex;overflow-x:auto;background:#E9F0FA;border-radius:14px;padding:8px 4px;}
 .dy{flex:1 0 54px;text-align:center;font-family:'Gaegu',cursive;font-weight:700;font-size:17px;line-height:1.35;color:var(--ink);}
 .dy b{display:block;font-weight:700;}
@@ -559,6 +561,7 @@ a{color:inherit;}
 .pk-add{display:flex;gap:8px;margin-top:16px;}
 .pk-add input{flex:1;min-width:0;padding:11px 13px;border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff;font-size:14px;color:var(--ink);}
 .pk-add button{padding:0 16px;border:0;border-radius:var(--radius-sm);background:var(--ink);color:#fff;font-size:13px;font-weight:700;}
+.dd-sec.dd-tl{margin-top:72px;}
 </style>
 </head>
 <body>
@@ -2029,7 +2032,7 @@ function renderDiaryDetail(){
   info.push(["목적",escapeHtml(t.purpose||"여행")]);
   if(t.rating)info.push(["만족도","★".repeat(t.rating)+"☆".repeat(5-t.rating)]);
   const rows=diaryTimeline(t);
-  const titleText="To. "+String(t.dCity||place).toUpperCase();
+  const titleHTML=`<span class="to">To.</span>&nbsp;&nbsp;${escapeHtml(String(t.dCity||place).toUpperCase())}`;
   const pk=t.packing||[];
   const done=pk.filter(x=>x.d).length;
   const on=i=>diaryPage===i?" on":"";
@@ -2041,11 +2044,11 @@ function renderDiaryDetail(){
     <div class="dd-pages">${["기록","준비물","정보"].map((n,i)=>`<button class="dd-pg${on(i)}" onclick="setDiaryPage(${i})">${i+1}. ${n}</button>`).join("")}</div>
 
     <section class="dd-page${on(0)}">
-      <div class="dd-title" data-t="${escapeAttr(titleText)}">${escapeHtml(titleText)}</div>
+      <div class="dd-title"><span class="bg" aria-hidden="true">${titleHTML}</span><span class="fg">${titleHTML}</span></div>
       <div class="dd-sub">${escapeHtml(t.dSub||"잊지 못할 순간들을 모아둔 기록")}</div>
       ${t.dTitle?`<div class="dd-tag">〈 ${escapeHtml(t.dTitle)} 〉</div>`:""}
       ${diaryDayStrip(t)}
-      ${rows.length?`<div class="dd-sec">여행 타임라인</div>${rows.map(r=>`<div class="dd-line">${r}</div>`).join("")}`:""}
+      ${rows.length?`<div class="dd-sec dd-tl">여행 타임라인</div>${rows.map(r=>`<div class="dd-line">${r}</div>`).join("")}`:""}
     </section>
 
     <section class="dd-page${on(1)}">
@@ -2091,7 +2094,4 @@ if(syncConfig){
     }
   }).catch(()=>{ /* offline — keep showing the local cached copy */ });
 }
-window.addEventListener("load",()=>{setTimeout(()=>{if(map){map.invalidateSize();applyMapFit(true);}},200);});
-</script>
-</body>
-</html>
+window.addEventL

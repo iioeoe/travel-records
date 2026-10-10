@@ -517,12 +517,14 @@ a{color:inherit;}
 .dd-back{border:0;background:none;color:var(--ink);font-size:13.5px;font-weight:600;padding:6px 0;}
 .dd-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:6px;}
 @media (min-width:768px){.dd-grid{grid-template-columns:1.25fr 1fr;gap:26px;align-items:start;}}
-.dd-title{position:relative;isolation:isolate;font-family:'Darumadrop One','Dokdo',sans-serif;font-weight:800;font-size:clamp(38px,10.5vw,60px);line-height:1.1;margin:36px 0 8px;padding-top:6px;word-break:keep-all;}
-.dd-title .fg{position:relative;display:block;color:var(--ink);paint-order:stroke fill;-webkit-text-stroke:8px #fff;}
-.dd-title .bg{position:absolute;left:0;right:0;top:6px;z-index:-1;color:var(--ink);-webkit-text-stroke:15px var(--ink);}
+.dd-title{position:relative;isolation:isolate;font-family:'Darumadrop One','Dokdo',sans-serif;font-weight:800;font-size:clamp(41px,11.3vw,65px);line-height:1.1;margin:36px 0 8px;padding-top:6px;word-break:keep-all;}
+.dd-title .fg{position:relative;display:block;color:var(--ink);}
+.dd-title .mid,.dd-title .bg{position:absolute;left:0;right:0;top:6px;filter:url(#ddSmooth);}
+.dd-title .mid{z-index:-1;color:#fff;-webkit-text-stroke:8px #fff;}
+.dd-title .bg{z-index:-2;color:var(--ink);-webkit-text-stroke:15px var(--ink);}
 .dd-title .to{font-size:.7em;}
 /* 통통글씨체(이전 제목 글꼴) 되돌리기: font-family:'Modak','Bagel Fat One',sans-serif; font-weight:400; */
-.dd-sub{font-family:'Gaegu',cursive;font-weight:700;font-size:20px;color:var(--ink);}
+.dd-sub{display:block;width:fit-content;font-family:'Permanent Marker','Gaegu',cursive;font-size:20px;letter-spacing:.5px;color:var(--ink);transform:rotate(-1.5deg);transform-origin:left center;}
 .dd-tag{font-family:'Jua',var(--font-body);font-size:26px;color:#FF6FB7;margin:72px 0 8px;}
 .dy-strip{display:flex;overflow-x:auto;background:#E9F0FA;border-radius:14px;padding:8px 4px;}
 .dy{flex:1 0 54px;text-align:center;font-family:'Gaegu',cursive;font-weight:700;font-size:17px;line-height:1.35;color:var(--ink);}
@@ -567,6 +569,7 @@ a{color:inherit;}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="ddSmooth" x="-20%" y="-50%" width="140%" height="200%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="1.6"/><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9"/></filter></defs></svg>
 
 <div id="app">
   <header class="topbar">
@@ -724,7 +727,6 @@ a{color:inherit;}
         <div class="section-title">여행기록 (선택)</div>
         <div class="field"><label>제목 도시명 (영문 추천, 비우면 도시 이름 사용)</label><input id="f_dcity" type="text" placeholder="예: New York"></div>
         <div class="field"><label>말머리</label><input id="f_dtitle" type="text" placeholder="예: 휴가 7 days"></div>
-        <div class="field"><label>부제목</label><input id="f_dsub" type="text" placeholder="예: 잊지 못할 순간들을 모아둔 기록"></div>
         <div class="field"><label>일정 메모 (한 줄에 하나)</label><textarea id="f_dlines" placeholder="예: 11/28 00:15 출발"></textarea></div>
 
         <div class="section-title">항공권</div>
@@ -1598,7 +1600,6 @@ window.editTrip=function(id){
   document.getElementById("f_memo").value=t.memo||"";
   document.getElementById("f_dcity").value=t.dCity||"";
   document.getElementById("f_dtitle").value=t.dTitle||"";
-  document.getElementById("f_dsub").value=t.dSub||"";
   document.getElementById("f_dlines").value=t.dLines||"";
   currentRating=t.rating||0;updateRatingUI();
   if(t.photo){currentPhoto=t.photo;document.getElementById("photoPreview").innerHTML=`<img src="${t.photo}">`;}
@@ -1645,7 +1646,6 @@ tripForm.addEventListener("submit",e=>{
     flights:collectFlights(),
     dCity:document.getElementById("f_dcity").value.trim(),
     dTitle:document.getElementById("f_dtitle").value.trim(),
-    dSub:document.getElementById("f_dsub").value.trim(),
     dLines:document.getElementById("f_dlines").value.trim(),
   };
   if(editingId){
@@ -1876,6 +1876,17 @@ function closeDiary(){
   document.getElementById("diaryDetail").classList.remove("open");
 }
 
+const DOW_EN=["SUN","MON","TUE","WED","THU","FRI","SAT"];
+function diarySubtitle(t){
+  const a=parseFullDate(t.start),b=parseFullDate(t.end);
+  const p2=n=>String(n).padStart(2,"0");
+  if(!a)return fmtRange(t.start,t.end);
+  let out=`${a.getFullYear()}.${p2(a.getMonth()+1)}.${p2(a.getDate())} ${DOW_EN[a.getDay()]}`;
+  if(b&&b.getTime()!==a.getTime()){
+    out+=" → "+(b.getFullYear()===a.getFullYear()?"":b.getFullYear()+".")+`${p2(b.getMonth()+1)}.${p2(b.getDate())} ${DOW_EN[b.getDay()]}`;
+  }
+  return out;
+}
 function diaryDayStrip(t,far){
   const a=parseFullDate(t.start),b=parseFullDate(t.end)||a;
   if(!a||!b||b<a)return "";
@@ -2046,8 +2057,8 @@ function renderDiaryDetail(){
     <div class="dd-pages">${["기록","준비물","정보"].map((n,i)=>`<button class="dd-pg${on(i)}" onclick="setDiaryPage(${i})">${i+1}. ${n}</button>`).join("")}</div>
 
     <section class="dd-page${on(0)}">
-      <div class="dd-title"><span class="bg" aria-hidden="true">${titleHTML}</span><span class="fg">${titleHTML}</span></div>
-      <div class="dd-sub">${escapeHtml(t.dSub||"잊지 못할 순간들을 모아둔 기록")}</div>
+      <div class="dd-title"><span class="bg" aria-hidden="true">${titleHTML}</span><span class="mid" aria-hidden="true">${titleHTML}</span><span class="fg">${titleHTML}</span></div>
+      <div class="dd-sub">${escapeHtml(diarySubtitle(t))}</div>
       ${t.dTitle?`<div class="dd-tag">〈 ${escapeHtml(t.dTitle)} 〉</div>`:""}
       ${diaryDayStrip(t,!t.dTitle)}
       ${rows.length?`<div class="dd-sec dd-tl">여행 타임라인</div>${rows.map(r=>`<div class="dd-line">${r}</div>`).join("")}`:""}
@@ -2100,4 +2111,3 @@ window.addEventListener("load",()=>{setTimeout(()=>{if(map){map.invalidateSize()
 </script>
 </body>
 </html>
-

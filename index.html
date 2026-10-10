@@ -34,7 +34,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&family=Oswald:wght@500;700&family=Special+Elite&family=Permanent+Marker&family=Modak&family=Bagel+Fat+One&family=Dokdo&family=Darumadrop+One&family=Noto+Sans+KR:wght@400;500;600&family=Gamja+Flower&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&family=Oswald:wght@500;700&family=Special+Elite&family=Permanent+Marker&family=Modak&family=Bagel+Fat+One&family=Dokdo&family=Darumadrop+One&family=Noto+Sans+KR:wght@400;500;600&family=Gamja+Flower&family=Roboto+Condensed:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
@@ -496,20 +496,12 @@ a{color:inherit;}
 .diary-head{padding:22px 18px 0;max-width:900px;margin:0 auto;}
 .diary-head h2{font-family:'Jua',var(--font-body);font-size:38px;font-weight:400;}
 .diary-head p{margin:4px 0 0;font-family:'Permanent Marker','Gaegu',cursive;font-size:13px;letter-spacing:1px;color:var(--ink-faint);}
-.stamp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:26px 12px;padding:22px 18px 110px;max-width:900px;margin:0 auto;justify-items:center;align-items:center;}
+.stamp-grid{display:grid;grid-auto-flow:dense;grid-template-columns:repeat(2,1fr);gap:26px 12px;padding:22px 18px 110px;max-width:900px;margin:0 auto;justify-items:center;align-items:center;}
 @media (min-width:768px){.stamp-grid{grid-template-columns:repeat(3,1fr);}}
-.st{position:relative;width:100%;max-width:210px;min-height:128px;box-sizing:border-box;padding:14px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;line-height:1.15;color:var(--k);background:none;border:0;transform:rotate(var(--r));font-family:'Special Elite',monospace;}
-.st>*{position:relative;z-index:1;}
-.st-t{font-size:10.5px;letter-spacing:1px;}
-.st-m{font-family:Oswald,'Jua',sans-serif;font-weight:700;font-size:26px;letter-spacing:.5px;word-break:keep-all;}
-.st-k{font-family:'Gaegu',cursive;font-weight:700;font-size:15px;}
-.v0{border:3px solid var(--k);border-radius:12px;}
-.v1{aspect-ratio:1;border-radius:50%;box-shadow:inset 0 0 0 3px var(--k),inset 0 0 0 8px #F4F1EA,inset 0 0 0 10px var(--k);}
-.v2{border:3px dashed var(--k);border-radius:50%;}
-.v3{aspect-ratio:1;background:var(--k);clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);}
-.v3::before{content:"";position:absolute;inset:3px;background:#F4F1EA;clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);z-index:0;}
-.v4{border-radius:8px;box-shadow:inset 0 0 0 3px var(--k),inset 0 0 0 8px #F4F1EA,inset 0 0 0 10px var(--k);}
-.v5{border:3px solid var(--k);border-radius:22px 6px 22px 6px;}
+.st{position:relative;display:block;width:100%;max-width:230px;padding:0;border:0;background:none;color:var(--k);transform:rotate(var(--r));}
+.st.wide{max-width:300px;}
+.st svg{display:block;width:100%;height:auto;overflow:visible;}
+@media (max-width:767px){.st.wide{grid-column:span 2;}}
 
 .diary-detail{position:absolute;inset:0;z-index:6;overflow-y:auto;display:none;-webkit-overflow-scrolling:touch;background-color:#FBFAF6;background-image:repeating-linear-gradient(#FBFAF6 0 33px,#ECE8DE 33px 34px);}
 .diary-detail.open{display:block;}
@@ -1020,6 +1012,8 @@ function initMap(){
     .then(geo=>{
       const shifted=shiftGeoJSON(geo);
       worldGeoShifted=shifted;
+      shifted.features.forEach(f=>{ENG_NAMES[f.id]=f.properties.name;});
+      renderDiary();
       geoLayer=L.geoJSON(shifted,{style:styleCountry}).addTo(map);
       geoLayer.bringToBack();
       buildCountryLabels(shifted);
@@ -1837,12 +1831,112 @@ function escapeAttr(s){return escapeHtml(s);}
 /* ====================================================================
    여행기록 (여권 도장 목록 + 노트 상세) — 사진은 넣지 않아요 (동기화 용량 문제)
 ==================================================================== */
-const STAMP_COLORS=["#C0392B","#2F5D9E","#1F9E8F","#7A4FA0","#B5483D","#2A8C8C"];
+const STAMP_COLORS=["#1B2A4A","#6689AD","#6D9F8B","#B98291","#C96F72","#D2B15E","#9588B8"];
 const WEEKDAYS=["일","월","화","수","목","금","토"];
 let diaryId=null;
 let diaryPage=0;
 function hashStr(str){let h=0;for(let i=0;i<str.length;i++)h=(h*31+str.charCodeAt(i))|0;return Math.abs(h);}
 function parseFullDate(v){const m=String(v||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?new Date(+m[1],+m[2]-1,+m[3]):null;}
+
+
+/* ---- 여권 도장 (SVG) 6가지 ---- */
+let ENG_NAMES={};
+const ENG_EXTRA={SGP:"Singapore",HKG:"Hong Kong",MAC:"Macao",MDV:"Maldives",PYF:"French Polynesia"};
+const MON3=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+const MONL=["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
+const PLANE_D="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z";
+const F_COND="'Roboto Condensed','Oswald','Jua',sans-serif";
+const F_OS="'Oswald','Roboto Condensed','Jua',sans-serif";
+const F_SLAB="'Roboto Slab','Jua',serif";
+const F_TYPE="'Special Elite','Jua',monospace";
+function stampDate(t,fmt){
+  const d=parseFullDate(t.start);
+  if(!d){
+    const m=String(t.start||"").match(/^(\d{4})(?:-(\d{2}))?/);
+    if(!m)return "";
+    return m[2]?MON3[+m[2]-1]+" "+m[1]:m[1];
+  }
+  const dd=String(d.getDate()).padStart(2,"0"),mm=String(d.getMonth()+1).padStart(2,"0"),y=d.getFullYear();
+  if(fmt==="dot")return dd+"."+mm+"."+y;
+  if(fmt==="long")return dd+" "+MONL[d.getMonth()]+" "+y;
+  return dd+" "+MON3[d.getMonth()]+" "+y;
+}
+function sxT(txt,x,y,size,o){
+  o=o||{};
+  const str=String(txt||"");
+  if(!str)return "";
+  let w=0;
+  const cw=o.w||(o.f===F_SLAB?0.62:(o.f===F_TYPE?0.6:0.5));
+  for(const ch of str)w+=ch.charCodeAt(0)>255?1:cw;
+  const fit=o.max&&w*size>o.max?` textLength="${o.max}" lengthAdjust="spacingAndGlyphs"`:"";
+  return `<text x="${x}" y="${y}" font-size="${size}" text-anchor="${o.a||"middle"}" font-family="${o.f||F_COND}" font-weight="${o.b?700:400}" fill="currentColor" stroke="none"${o.ls?` letter-spacing="${o.ls}"`:""}${fit}>${escapeHtml(str)}</text>`;
+}
+function stampSVG(v,t){
+  const ci=countryInfo(t.countryCode);
+  const code=String(t.countryCode||"").toUpperCase();
+  const cEn=String(ENG_NAMES[t.countryCode]||ENG_EXTRA[t.countryCode]||(ci?ci.ko:code)).toUpperCase();
+  const city=String(t.dCity||t.city||(ci?ci.ko:code)).toUpperCase();
+  const fl=(t.flights||[])[0]||{};
+  const fno=fl.flightNo||"",resv=fl.reservationNo||"";
+  const plane=(tr)=>`<g transform="${tr}" fill="currentColor" stroke="none"><path d="${PLANE_D}"/></g>`;
+  const wrap=(vb,inner)=>`<svg viewBox="${vb}" role="img" aria-label="${escapeAttr(city)}" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
+  if(v===0){ /* 홍콩: 육각형 + 날짜 세로 + 큰 도시 띠 */
+    const d=parseFullDate(t.start);
+    const dp=d?[String(d.getDate()),MON3[d.getMonth()],String(d.getFullYear())]:[stampDate(t,"s"),"",""];
+    return wrap("0 0 320 190",
+      `<path d="M52 22H268L306 68V122L268 168H52L14 122V68Z" stroke-width="5"/>
+       <path d="M58 32H262L296 72V118L262 158H58L24 118V72Z" stroke-width="1.8"/>
+       ${sxT(fno?fno+" ★ "+(resv||""):"TRAVEL ★ LOG",194,52,14,{ls:1.5,max:150})}
+       <path d="M98 60H292M98 66H292M98 124H292M98 60V124" stroke-width="1.6"/>
+       ${sxT(dp[0],58,86,28,{b:1,f:F_OS,max:60})}${sxT(dp[1],58,106,18,{b:1,f:F_OS,ls:1})}${sxT(dp[2],58,126,17,{f:F_OS})}
+       ${sxT(city,194,112,44,{b:1,f:F_OS,max:176})}
+       ${sxT("★★★★",104,150,9,{a:"start"})}${sxT("DEPARTED",194,152,17,{b:1,f:F_COND,ls:1})}${sxT("★★★★★",286,150,9,{a:"end"})}`);
+  }
+  if(v===1){ /* 보스턴: 둥근 사각형 + 비행기 */
+    return wrap("0 0 240 240",
+      `<rect x="6" y="6" width="228" height="228" rx="34" stroke-width="7"/>
+       ${plane("translate(120 54) rotate(45) scale(2.1) translate(-12 -12.5)")}
+       <path d="M24 96H216M24 152H216" stroke-width="5" opacity=".6"/>
+       ${sxT(city,120,140,50,{b:1,f:F_OS,max:188})}
+       ${sxT(code,28,196,26,{a:"start",b:1,f:F_OS})}
+       <circle cx="32" cy="212" r="3.4" fill="currentColor" stroke="none"/><circle cx="48" cy="212" r="3.4" fill="currentColor" stroke="none"/><circle cx="64" cy="212" r="3.4" fill="currentColor" stroke="none"/>
+       ${sxT(stampDate(t,"s"),212,188,17,{a:"end",f:F_COND})}${sxT("DEPARTED",212,212,19,{a:"end",f:F_COND,ls:.5})}`);
+  }
+  if(v===2){ /* 푸에르토플라타: 아치 이중 테두리 + 크루즈선 */
+    return wrap("0 0 260 240",
+      `<path d="M22 222V108C22 58 70 22 130 22S238 58 238 108V222Z" stroke-width="6"/>
+       <path d="M36 210V110C36 70 76 40 130 40S224 70 224 110V210Z" stroke-width="2.6"/>
+       <g transform="translate(130 62) scale(1.3)" fill="currentColor" stroke="none"><path d="M-17 2H17L11 10H-11Z"/><path d="M-11 -2H11V2H-11Z"/><path d="M-6 -8H6V-2H-6Z"/></g>
+       ${sxT("ARRIVAL",130,102,26,{b:1,f:F_COND,max:130})}${sxT(stampDate(t,"dot"),130,126,22,{f:F_COND,max:140})}
+       <path d="M40 135H220" stroke-width="2.4"/>
+       ${sxT(city,130,168,34,{b:1,f:F_COND,max:176})}${sxT(cEn,130,198,17,{b:1,f:F_COND,max:176})}`);
+  }
+  if(v===3){ /* 뉴욕(남색): 모서리를 자른 사각형 + 점선 테두리 */
+    return wrap("0 0 320 200",
+      `<path d="M30 12H290L308 30V170L290 188H30L12 170V30Z" stroke-width="6"/>
+       <path d="M38 24H282L296 38V162L282 176H38L24 162V38Z" stroke-width="4.5" stroke-dasharray="0 10.5"/>
+       ${sxT(cEn,160,64,15,{f:F_COND,ls:1,max:220})}
+       ${sxT("★",68,95,15)}${sxT("DEPARTED",160,96,24,{b:1,f:F_COND})}${sxT("★",252,95,15)}
+       <path d="M62 106H258" stroke-width="1.6"/>
+       ${sxT(city,160,148,50,{b:1,f:F_COND,max:232})}${sxT(stampDate(t,"long"),160,168,14,{f:F_COND,ls:.5,max:200})}`);
+  }
+  if(v===4){ /* 런던: 이중 타원 + 양옆 비행기 */
+    return wrap("0 0 320 190",
+      `<ellipse cx="160" cy="95" rx="150" ry="84" stroke-width="7"/><ellipse cx="160" cy="95" rx="135" ry="70" stroke-width="1.8"/>
+       ${sxT("PASSPORT CONTROL",160,62,15,{f:F_COND,ls:1,max:190})}
+       ${plane("translate(58 96) rotate(-90) scale(1.5) translate(-12 -12.5)")}${plane("translate(262 96) rotate(90) scale(1.5) translate(-12 -12.5)")}
+       ${sxT(city,160,110,40,{b:1,f:F_OS,max:150})}${sxT("ARRIVAL",160,138,24,{b:1,f:F_COND,max:110})}${sxT(stampDate(t,"dot"),160,157,15,{f:F_COND,max:100})}`);
+  }
+  /* v===5 뉴욕(빨강): 점선 바깥 테두리 + 별 */
+  return wrap("0 0 300 180",
+    `<rect x="6" y="6" width="288" height="168" rx="18" stroke-width="3" stroke-dasharray="8 5"/>
+     <rect x="18" y="18" width="264" height="144" rx="12" stroke-width="5"/>
+     ${sxT(city,150,62,40,{b:1,f:F_SLAB,max:236})}
+     ${sxT(code,34,90,14,{a:"start",b:1,f:F_SLAB})}${sxT(resv,266,90,13,{a:"end",f:F_TYPE,max:130})}
+     <path d="M32 100H268" stroke-width="3"/>
+     ${sxT("★",46,150,38,{f:F_COND})}${sxT("★",254,150,38,{f:F_COND})}
+     ${sxT("DEPARTURE",150,128,22,{b:1,f:F_SLAB,max:120})}${sxT(stampDate(t,"s"),150,152,16,{f:F_TYPE,max:110})}`);
+}
 
 function renderDiary(){
   const list=document.getElementById("diaryList");
@@ -1855,14 +1949,10 @@ function renderDiary(){
     list.innerHTML='<div class="stamp-grid">'+trips.map(t=>{
       const ci=countryInfo(t.countryCode);
       const h=hashStr(String(t.id));
-      const v=h%6,color=STAMP_COLORS[(h>>3)%STAMP_COLORS.length],rot=(h%11)-5;
+      const v=h%6,color=STAMP_COLORS[(h>>3)%STAMP_COLORS.length],rot=(h%9)-4;
       const country=ci?ci.ko:t.countryCode;
-      return `<button class="st v${v}" style="--k:${color};--r:${rot}deg" aria-label="${escapeAttr(country+" "+(t.city||""))}" onclick="openDiary('${t.id}')">
-        <span class="st-t">${escapeHtml(country)}</span>
-        <span class="st-m">${escapeHtml(t.city||country)}</span>
-        <span class="st-t">${fmtDateShort(t.start)}</span>
-        ${t.dTitle?`<span class="st-k">${escapeHtml(t.dTitle)}</span>`:""}
-      </button>`;
+      const wide=[0,3,4,5].includes(v);
+      return `<button class="st${wide?" wide":""}" style="--k:${color};--r:${rot}deg" aria-label="${escapeAttr(country+" "+(t.city||""))}" onclick="openDiary('${t.id}')">${stampSVG(v,t)}</button>`;
     }).join("")+'</div>';
   }
   if(diaryId){

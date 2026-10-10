@@ -525,7 +525,8 @@ a{color:inherit;}
 .dd-title .to{font-size:.7em;}
 /* 통통글씨체(이전 제목 글꼴) 되돌리기: font-family:'Modak','Bagel Fat One',sans-serif; font-weight:400; */
 .dd-sub{display:block;width:fit-content;font-family:'Permanent Marker','Gaegu',cursive;font-size:20px;letter-spacing:.5px;color:var(--ink);transform:rotate(-1.5deg);transform-origin:left center;}
-.dd-tag{font-family:'Jua',var(--font-body);font-size:26px;color:#FF6FB7;margin:72px 0 8px;}
+.dd-tag{display:flex;align-items:center;gap:10px;width:fit-content;font-family:'Jua',var(--font-body);font-size:26px;color:#FF6FB7;margin:72px 0 8px;}
+.dd-tag .chev{flex:0 0 auto;height:.95em;width:auto;fill:none;stroke:currentColor;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;}
 .dy-strip{display:flex;overflow-x:auto;background:#E9F0FA;border-radius:14px;padding:8px 4px;}
 .dy{flex:1 0 54px;text-align:center;font-family:'Gaegu',cursive;font-weight:700;font-size:17px;line-height:1.35;color:var(--ink);}
 .dy b{display:block;font-weight:700;}
@@ -533,7 +534,7 @@ a{color:inherit;}
 .dd-sec{font-family:'Jua',var(--font-body);font-size:18px;margin:22px 0 8px;display:inline-block;border-bottom:3px solid #FF9AC9;line-height:1.2;}
 .dd-line{font-family:'Gaegu',cursive;font-weight:700;font-size:20px;line-height:34px;padding-left:10px;color:var(--ink);}
 .dd-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow-sm);margin-bottom:16px;}
-.dd-card h3{display:inline-block;margin:0;font-family:'Jua',var(--font-body);font-size:18px;font-weight:400;border-bottom:3px solid #FF9AC9;line-height:1.3;}
+.dd-card h3,.dd-ch h3{display:inline-block;margin:0;font-family:'Jua',var(--font-body);font-size:18px;font-weight:400;border-bottom:3px solid #FF9AC9;line-height:1.3;}
 .dd-ch{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
 .dd-ch svg{flex:0 0 auto;}
 .dd-heart{margin-left:auto;display:flex;transform:rotate(12deg);}
@@ -568,7 +569,7 @@ a{color:inherit;}
 .pk-add{display:flex;gap:8px;margin-top:16px;}
 .pk-add input{flex:1;min-width:0;padding:11px 13px;border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff;font-size:14px;color:var(--ink);}
 .pk-add button{padding:0 16px;border:0;border-radius:var(--radius-sm);background:var(--ink);color:#fff;font-size:13px;font-weight:700;}
-.dd-sec.dd-tl{margin-top:72px;}
+.dd-ch.dd-tl{margin-top:72px;margin-bottom:6px;}
 .dy-strip.far{margin-top:72px;}
 </style>
 </head>
@@ -1945,8 +1946,8 @@ function routeMapSVG(t){
   const clampX=x=>Math.min(RM.W-34,Math.max(34,x));
   const lab=(p,l1,l2)=>{
     const below=p[1]+36<RM.H;
-    const y=below?p[1]+16:p[1]-(l2?26:12);
-    return `<text text-anchor="middle" font-size="13.5" fill="#1B2A4A" stroke="#fff" stroke-width="3.5" paint-order="stroke" font-family="'Gamja Flower',cursive"><tspan x="${f(clampX(p[0]))}" y="${f(y)}">${escapeHtml(l1)}</tspan>${l2?`<tspan x="${f(clampX(p[0]))}" dy="14">(${escapeHtml(l2)})</tspan>`:""}</text>`;
+    const y=below?p[1]+15:p[1]-(l2?24:12);
+    return `<text text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A" stroke="#fff" stroke-width="3.2" paint-order="stroke" font-family="'Gamja Flower',cursive"><tspan x="${f(clampX(p[0]))}" y="${f(y)}">${escapeHtml(l1)}</tspan>${l2?`<tspan x="${f(clampX(p[0]))}" dy="13">(${escapeHtml(l2)})</tspan>`:""}</text>`;
   };
   const pin=p=>`<circle cx="${f(p[0])}" cy="${f(p[1])}" r="4.6" fill="#FF6FB7" stroke="#fff" stroke-width="1.6"/>`;
   const country=ci?ci.ko:"";
@@ -1957,16 +1958,14 @@ function routeMapSVG(t){
   /* 손그림 나침판 + 낙서 웃는 얼굴 */
   const kx=RM.W-30,ky=RM.H-30,N="#1B2A4A";
   const compass=`<g font-family="'Gaegu',cursive" font-weight="700" font-size="9.5" fill="${N}" text-anchor="middle">
-    <circle cx="${kx}" cy="${ky}" r="13" fill="rgba(255,255,255,.7)"/>
-    <path d="M${kx-13} ${ky}C${kx-13} ${ky-7.5} ${kx-7} ${ky-13.4} ${kx+.5} ${ky-13}S${kx+13.2} ${ky-7} ${kx+13} ${ky+.5}S${kx+7} ${ky+13.3} ${kx-.5} ${ky+13.2}S${kx-13.3} ${ky+7} ${kx-13} ${ky}Z" fill="none" stroke="${N}" stroke-width="1.4" stroke-linecap="round"/>
-    <path d="M${kx} ${ky-10}L${kx+3.2} ${ky}L${kx-3.2} ${ky}Z" fill="#FF6FB7"/>
-    <path d="M${kx} ${ky+10}L${kx+3.2} ${ky}L${kx-3.2} ${ky}Z" fill="#fff" stroke="${N}" stroke-width=".9" stroke-linejoin="round"/>
-    <text x="${kx}" y="${ky-16.5}">N</text><text x="${kx}" y="${ky+25}">S</text>
-    <text x="${kx+20}" y="${ky+3.4}">E</text><text x="${kx-20}" y="${ky+3.4}">W</text>
-    <g transform="translate(${kx-52} ${ky+6})" fill="none" stroke="${N}" stroke-width="1.2" stroke-linecap="round">
-      <circle r="6.5"/><circle cx="-2.3" cy="-1.6" r=".7" fill="${N}"/><circle cx="2.3" cy="-1.6" r=".7" fill="${N}"/>
-      <path d="M-3.2 1.8Q0 5 3.2 1.8"/><path d="M-11 -4l-3-1.5M-11.5 1l-3.2.4M11 -4l3-1.5M11.5 1l3.2.4"/>
+    <g transform="translate(${kx} ${ky}) scale(.6) translate(${-kx} ${-ky})">
+      <circle cx="${kx}" cy="${ky}" r="13" fill="rgba(255,255,255,.7)"/>
+      <path d="M${kx-13} ${ky}C${kx-13} ${ky-7.5} ${kx-7} ${ky-13.4} ${kx+.5} ${ky-13}S${kx+13.2} ${ky-7} ${kx+13} ${ky+.5}S${kx+7} ${ky+13.3} ${kx-.5} ${ky+13.2}S${kx-13.3} ${ky+7} ${kx-13} ${ky}Z" fill="none" stroke="${N}" stroke-width="1.9" stroke-linecap="round"/>
+      <path d="M${kx} ${ky-10}L${kx+3.2} ${ky}L${kx-3.2} ${ky}Z" fill="#FF6FB7"/>
+      <path d="M${kx} ${ky+10}L${kx+3.2} ${ky}L${kx-3.2} ${ky}Z" fill="#fff" stroke="${N}" stroke-width="1.4" stroke-linejoin="round"/>
     </g>
+    <text x="${kx}" y="${ky-11.5}">N</text><text x="${kx}" y="${ky+19.5}">S</text>
+    <text x="${kx+15}" y="${ky+3.4}">E</text><text x="${kx-15}" y="${ky+3.4}">W</text>
   </g>`;
   return `<svg class="dd-map" viewBox="0 0 ${RM.W} ${RM.H}" role="img" aria-label="여행 경로 지도">
     <rect width="${RM.W}" height="${RM.H}" fill="#CFE3EF"/>
@@ -2032,6 +2031,7 @@ const CHECK_SVG='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" str
 const PIN_SVG='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#1B2A4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
 
 const BAG_SVG='<svg viewBox="0 0 28 28" width="30" height="30" fill="none" stroke="#1B2A4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="20" height="14" rx="4"/><path d="M10 8V6.5A2 2 0 0 1 12 4.5h4a2 2 0 0 1 2 2V8"/><path d="M9 22v2M19 22v2"/><path d="M9.5 8v14M18.5 8v14" stroke-width="1.4"/><path d="M14 18.2c-2.4-1.6-3.2-2.7-3.2-3.8a1.7 1.7 0 0 1 3.2-.7 1.7 1.7 0 0 1 3.2.7c0 1.1-.8 2.2-3.2 3.8z" fill="#FF6FB7" stroke="none"/></svg>';
+const CLOCK_SVG='<svg viewBox="0 0 28 28" width="30" height="30" fill="none" stroke="#1B2A4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="14" cy="14" r="10"/><path d="M14 8.5V14l3.8 2.4"/><circle cx="14" cy="14" r="1.3" fill="#FF6FB7" stroke="none"/></svg>';
 const DASH_SVG='<svg viewBox="0 0 16 14" width="16" height="14" fill="none" stroke="#FF6FB7" stroke-width="1.8" stroke-linecap="round" style="align-self:flex-start;margin-top:-4px" aria-hidden="true"><path d="M2 4l6-2M3 10l6 .6"/></svg>';
 const HEART_SVG='<svg viewBox="0 0 24 24" width="22" height="22" fill="#FF6FB7" aria-hidden="true"><path d="M12 20.5C5 15.5 3 12 3 9a4.5 4.5 0 0 1 9-1.2A4.5 4.5 0 0 1 21 9c0 3-2 6.5-9 11.5z"/></svg>';
 const RI=d=>'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#1B2A4A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d+'</svg>';
@@ -2077,9 +2077,9 @@ function renderDiaryDetail(){
     <section class="dd-page${on(0)}">
       <div class="dd-title"><span class="bg" aria-hidden="true">${titleHTML}</span><span class="mid" aria-hidden="true">${titleHTML}</span><span class="fg">${titleHTML}</span></div>
       <div class="dd-sub">${escapeHtml(diarySubtitle(t))}</div>
-      ${t.dTitle?`<div class="dd-tag">〈 ${escapeHtml(t.dTitle)} 〉</div>`:""}
+      ${t.dTitle?`<div class="dd-tag"><svg class="chev" viewBox="0 0 14 24" aria-hidden="true"><path d="M11 3L3 12l8 9"/></svg><span>${escapeHtml(t.dTitle)}</span><svg class="chev" viewBox="0 0 14 24" aria-hidden="true"><path d="M3 3l8 9-8 9"/></svg></div>`:""}
       ${diaryDayStrip(t,!t.dTitle)}
-      ${rows.length?`<div class="dd-sec dd-tl">여행 타임라인</div>${rows.map(r=>`<div class="dd-line">${r}</div>`).join("")}`:""}
+      ${rows.length?`<div class="dd-ch dd-tl">${CLOCK_SVG}<h3>여행 타임라인</h3>${DASH_SVG}</div>${rows.map(r=>`<div class="dd-line">${r}</div>`).join("")}`:""}
     </section>
 
     <section class="dd-page${on(1)}">

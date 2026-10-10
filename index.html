@@ -34,6 +34,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&family=Oswald:wght@500;700&family=Special+Elite&family=Permanent+Marker&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
@@ -489,6 +490,54 @@ a{color:inherit;}
 .geo-item span{display:block;font-size:11px;color:var(--ink-faint);margin-top:2px;line-height:1.4;}
 .geo-msg{font-size:12px;color:var(--ink-faint);padding:4px 2px;}
 .geo-msg.ok{color:#3A8F5A;}
+
+/* ============ 여행기록 (도장 목록 + 노트 상세) ============ */
+#view-diary{background:#F4F1EA;}
+.diary-head{padding:22px 18px 0;max-width:900px;margin:0 auto;}
+.diary-head h2{font-family:'Jua',var(--font-body);font-size:38px;font-weight:400;}
+.diary-head p{margin:4px 0 0;font-family:'Permanent Marker','Gaegu',cursive;font-size:13px;letter-spacing:1px;color:var(--ink-faint);}
+.stamp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:26px 12px;padding:22px 18px 110px;max-width:900px;margin:0 auto;justify-items:center;align-items:center;}
+@media (min-width:768px){.stamp-grid{grid-template-columns:repeat(3,1fr);}}
+.st{position:relative;width:100%;max-width:210px;min-height:128px;box-sizing:border-box;padding:14px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;line-height:1.15;color:var(--k);background:none;border:0;transform:rotate(var(--r));font-family:'Special Elite',monospace;}
+.st>*{position:relative;z-index:1;}
+.st-t{font-size:10.5px;letter-spacing:1px;}
+.st-m{font-family:Oswald,'Jua',sans-serif;font-weight:700;font-size:26px;letter-spacing:.5px;word-break:keep-all;}
+.st-k{font-family:'Gaegu',cursive;font-weight:700;font-size:15px;}
+.v0{border:3px solid var(--k);border-radius:12px;}
+.v1{aspect-ratio:1;border-radius:50%;box-shadow:inset 0 0 0 3px var(--k),inset 0 0 0 8px #F4F1EA,inset 0 0 0 10px var(--k);}
+.v2{border:3px dashed var(--k);border-radius:50%;}
+.v3{aspect-ratio:1;background:var(--k);clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);}
+.v3::before{content:"";position:absolute;inset:3px;background:#F4F1EA;clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);z-index:0;}
+.v4{border-radius:8px;box-shadow:inset 0 0 0 3px var(--k),inset 0 0 0 8px #F4F1EA,inset 0 0 0 10px var(--k);}
+.v5{border:3px solid var(--k);border-radius:22px 6px 22px 6px;}
+
+.diary-detail{position:absolute;inset:0;z-index:6;overflow-y:auto;display:none;-webkit-overflow-scrolling:touch;background-color:#FBFAF6;background-image:repeating-linear-gradient(#FBFAF6 0 33px,#ECE8DE 33px 34px);}
+.diary-detail.open{display:block;}
+.dd-wrap{max-width:1040px;margin:0 auto;padding:14px 18px 120px;}
+.dd-back{border:0;background:none;color:var(--ink);font-size:13.5px;font-weight:600;padding:6px 0;}
+.dd-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:6px;}
+@media (min-width:768px){.dd-grid{grid-template-columns:1.25fr 1fr;gap:26px;align-items:start;}}
+.dd-title{font-family:'Jua',var(--font-body);font-size:40px;line-height:1.2;color:var(--ink);paint-order:stroke fill;-webkit-text-stroke:6px #fff;margin:10px 0 4px;word-break:keep-all;}
+.dd-sub{font-family:'Gaegu',cursive;font-weight:700;font-size:20px;color:var(--ink);}
+.dd-tag{font-family:'Jua',var(--font-body);font-size:26px;color:#FF6FB7;margin:18px 0 8px;}
+.dy-strip{display:flex;overflow-x:auto;background:#E9F0FA;border-radius:14px;padding:8px 4px;}
+.dy{flex:1 0 54px;text-align:center;font-size:11.5px;line-height:1.5;color:var(--ink);}
+.dy b{display:block;font-weight:700;}
+.dy.sat,.dy.sun{color:#FF6FB7;}
+.dd-sec{font-family:'Jua',var(--font-body);font-size:18px;margin:22px 0 8px;display:inline-block;border-bottom:3px solid #FF9AC9;line-height:1.2;}
+.dd-line{font-family:'Gaegu',cursive;font-weight:700;font-size:20px;line-height:34px;padding-left:10px;}
+.dd-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow-sm);margin-bottom:16px;}
+.dd-card h3{font-family:'Jua',var(--font-body);font-size:18px;font-weight:400;margin-bottom:6px;}
+.dd-row{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;}
+.dd-row:last-child{border-bottom:0;}
+.dd-row label{width:64px;flex:0 0 auto;color:var(--ink-faint);}
+.dd-row span{font-weight:600;}
+.dd-map{width:100%;display:block;border-radius:10px;}
+.dd-postit{position:relative;margin-top:22px;padding:22px 18px 18px;background:#FDE3EC;border-radius:6px;transform:rotate(-2deg);box-shadow:var(--shadow-sm);font-family:'Gaegu',cursive;font-weight:700;font-size:19px;line-height:1.5;color:var(--ink);white-space:pre-wrap;}
+.dd-postit::before{content:"";position:absolute;top:-10px;left:50%;width:70px;height:20px;transform:translateX(-50%);background:rgba(255,111,183,.45);}
+.dd-city{font-family:'Gaegu',cursive;font-weight:700;font-size:26px;color:#FF6FB7;text-align:right;margin-top:10px;}
+.dd-actions{display:flex;gap:8px;margin-top:26px;}
+.dd-actions button{flex:1;padding:12px;border-radius:999px;font-size:13px;font-weight:700;}
 </style>
 </head>
 <body>
@@ -535,6 +584,12 @@ a{color:inherit;}
       <div class="flights-toolbar"><input id="flightSearch" placeholder="항공사 · 편명 · 도시 검색"></div>
       <div class="bp-wrap" id="flightsContent"></div>
     </section>
+
+    <section id="view-diary" class="view">
+      <div class="diary-head"><h2>여행기록</h2><p>MY PASSPORT STAMPS · <span id="diaryCount">0</span></p></div>
+      <div id="diaryList"></div>
+      <div id="diaryDetail" class="diary-detail"></div>
+    </section>
   </main>
 
   <button class="fab" id="fabAdd" aria-label="여행 추가">+</button>
@@ -545,6 +600,9 @@ a{color:inherit;}
     </button>
     <button class="tab-btn" data-tab="timeline">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg>타임라인
+    </button>
+    <button class="tab-btn" data-tab="diary">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>여행기록
     </button>
     <button class="tab-btn" data-tab="stats">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16"/><path d="M7 17v-3M12 17V9M17 17V5"/></svg>통계
@@ -636,6 +694,11 @@ a{color:inherit;}
           <label>메모</label>
           <textarea id="f_memo" placeholder="여행에 대한 기록을 남겨보세요"></textarea>
         </div>
+
+        <div class="section-title">여행기록 (선택)</div>
+        <div class="field"><label>말머리</label><input id="f_dtitle" type="text" placeholder="예: 휴가 7 days"></div>
+        <div class="field"><label>부제목</label><input id="f_dsub" type="text" placeholder="예: 잊지 못할 순간들을 모아둔 기록"></div>
+        <div class="field"><label>일정 메모 (한 줄에 하나)</label><textarea id="f_dlines" placeholder="예: 11/28 00:15 출발"></textarea></div>
 
         <div class="section-title">항공권</div>
         <div id="flightsFieldArea"></div>
@@ -799,6 +862,7 @@ tabBtns.forEach(btn=>{
     if(btn.dataset.tab==="timeline")renderTimeline();
     if(btn.dataset.tab==="stats")renderStats();
     if(btn.dataset.tab==="flights")renderFlights();
+    if(btn.dataset.tab==="diary")renderDiary();
     if(btn.dataset.tab==="map" && map)setTimeout(()=>map.invalidateSize(),50);
   });
 });
@@ -880,7 +944,7 @@ function refreshLabels(){
   });
 }
 
-let map,geoLayer,markersLayer;
+let map,geoLayer,markersLayer,worldGeoShifted=null;
 /* 넓은 화면(폴드 펼침 등)에서는 세계 전체가 한눈에 들어오게 맞춰요 */
 const WORLD_BOUNDS=L.latLngBounds([[-58,-35],[82,330]]);
 function applyMapFit(initial){
@@ -921,9 +985,11 @@ function initMap(){
     .then(r=>r.json())
     .then(geo=>{
       const shifted=shiftGeoJSON(geo);
+      worldGeoShifted=shifted;
       geoLayer=L.geoJSON(shifted,{style:styleCountry}).addTo(map);
       geoLayer.bringToBack();
       buildCountryLabels(shifted);
+      if(diaryId)renderDiaryDetail();
     })
     .catch(()=>{});
 }
@@ -973,6 +1039,7 @@ function refreshAll(){
   updateCounters();
   refreshMapStyle();
   renderMarkers();
+  renderDiary();
   autoPushSync();
 }
 
@@ -1502,6 +1569,9 @@ window.editTrip=function(id){
   document.getElementById("f_lat").value=t.lat!=null?t.lat:"";
   document.getElementById("f_lng").value=t.lng!=null?t.lng:"";
   document.getElementById("f_memo").value=t.memo||"";
+  document.getElementById("f_dtitle").value=t.dTitle||"";
+  document.getElementById("f_dsub").value=t.dSub||"";
+  document.getElementById("f_dlines").value=t.dLines||"";
   currentRating=t.rating||0;updateRatingUI();
   if(t.photo){currentPhoto=t.photo;document.getElementById("photoPreview").innerHTML=`<img src="${t.photo}">`;}
   (t.flights||[]).forEach(f=>addFlightBlock(f));
@@ -1545,6 +1615,9 @@ tripForm.addEventListener("submit",e=>{
     rating:currentRating,
     photo:currentPhoto,
     flights:collectFlights(),
+    dTitle:document.getElementById("f_dtitle").value.trim(),
+    dSub:document.getElementById("f_dsub").value.trim(),
+    dLines:document.getElementById("f_dlines").value.trim(),
   };
   if(editingId){
     const idx=state.trips.findIndex(t=>t.id===editingId);
@@ -1728,11 +1801,160 @@ function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":
 function escapeAttr(s){return escapeHtml(s);}
 
 /* ====================================================================
+   여행기록 (여권 도장 목록 + 노트 상세) — 사진은 넣지 않아요 (동기화 용량 문제)
+==================================================================== */
+const STAMP_COLORS=["#C0392B","#2F5D9E","#1F9E8F","#7A4FA0","#B5483D","#2A8C8C"];
+const WEEKDAYS=["일","월","화","수","목","금","토"];
+let diaryId=null;
+function hashStr(str){let h=0;for(let i=0;i<str.length;i++)h=(h*31+str.charCodeAt(i))|0;return Math.abs(h);}
+function parseFullDate(v){const m=String(v||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?new Date(+m[1],+m[2]-1,+m[3]):null;}
+
+function renderDiary(){
+  const list=document.getElementById("diaryList");
+  if(!list)return;
+  const trips=[...state.trips].sort((a,b)=>new Date(b.start)-new Date(a.start));
+  document.getElementById("diaryCount").textContent=trips.length;
+  if(!trips.length){
+    list.innerHTML=emptyState("아직 여행기록이 없어요","+ 버튼으로 여행을 추가하면 도장이 찍혀요");
+  }else{
+    list.innerHTML='<div class="stamp-grid">'+trips.map(t=>{
+      const ci=countryInfo(t.countryCode);
+      const h=hashStr(String(t.id));
+      const v=h%6,color=STAMP_COLORS[(h>>3)%STAMP_COLORS.length],rot=(h%11)-5;
+      const country=ci?ci.ko:t.countryCode;
+      return `<button class="st v${v}" style="--k:${color};--r:${rot}deg" aria-label="${escapeAttr(country+" "+(t.city||""))}" onclick="openDiary('${t.id}')">
+        <span class="st-t">${escapeHtml(country)}</span>
+        <span class="st-m">${escapeHtml(t.city||country)}</span>
+        <span class="st-t">${fmtDateShort(t.start)}</span>
+        ${t.dTitle?`<span class="st-k">${escapeHtml(t.dTitle)}</span>`:""}
+      </button>`;
+    }).join("")+'</div>';
+  }
+  if(diaryId){
+    if(state.trips.find(x=>x.id===diaryId))renderDiaryDetail();else closeDiary();
+  }
+}
+function openDiary(id){
+  diaryId=id;
+  renderDiaryDetail();
+  const el=document.getElementById("diaryDetail");
+  el.classList.add("open");el.scrollTop=0;
+}
+function closeDiary(){
+  diaryId=null;
+  document.getElementById("diaryDetail").classList.remove("open");
+}
+
+function diaryDayStrip(t){
+  const a=parseFullDate(t.start),b=parseFullDate(t.end)||a;
+  if(!a||!b||b<a)return "";
+  const n=Math.min(31,Math.round((b-a)/86400000)+1);
+  let h='<div class="dy-strip">';
+  for(let i=0;i<n;i++){
+    const d=new Date(a.getFullYear(),a.getMonth(),a.getDate()+i);
+    const w=d.getDay();
+    h+=`<div class="dy${w===6?" sat":(w===0?" sun":"")}"><b>${WEEKDAYS[w]}</b><span>${d.getMonth()+1}/${d.getDate()}</span></div>`;
+  }
+  return h+"</div>";
+}
+function diaryTimeline(t){
+  const rows=[];
+  (t.flights||[]).forEach(f=>{
+    const d=parseFullDate(f.depDate);
+    const md=d?String(d.getMonth()+1).padStart(2,"0")+"/"+String(d.getDate()).padStart(2,"0"):"";
+    rows.push(`${md} &nbsp;${escapeHtml(f.from||"")} → ${escapeHtml(f.to||"")}${f.depTime?" &nbsp;"+escapeHtml(f.depTime):""}`);
+  });
+  String(t.dLines||"").split("\n").map(x=>x.trim()).filter(Boolean).forEach(x=>rows.push(escapeHtml(x)));
+  return rows;
+}
+
+/* ---- 여행 경로 미니 지도 (인천 → 도착지) ---- */
+const RM={x0:-35,x1:330,y0:-58,y1:82,W:360,H:190};
+let worldPathCache=null;
+function rmXY(lng,lat){return [(lng-RM.x0)/(RM.x1-RM.x0)*RM.W,(RM.y1-lat)/(RM.y1-RM.y0)*RM.H];}
+function worldPathD(){
+  if(worldPathCache)return worldPathCache;
+  if(!worldGeoShifted)return "";
+  let d="";
+  worldGeoShifted.features.forEach(f=>{
+    const g=f.geometry;
+    if(!g)return;
+    const polys=g.type==="Polygon"?[g.coordinates]:(g.type==="MultiPolygon"?g.coordinates:[]);
+    polys.forEach(poly=>poly.forEach(ring=>{
+      ring.forEach((p,i)=>{const xy=rmXY(p[0],p[1]);d+=(i?"L":"M")+xy[0].toFixed(1)+" "+xy[1].toFixed(1);});
+      d+="Z";
+    }));
+  });
+  worldPathCache=d;
+  return d;
+}
+function routeMapSVG(t){
+  const ci=countryInfo(t.countryCode);
+  const lat=t.lat!=null?t.lat:(ci?ci.lat:0);
+  const lng=shiftLng(t.lng!=null?t.lng:(ci?ci.lng:0));
+  const p2=rmXY(lng,lat),p1=rmXY(126.44,37.46);
+  const far=Math.hypot(p2[0]-p1[0],p2[1]-p1[1])>24;
+  const cx=(p1[0]+p2[0])/2,cy=Math.min(p1[1],p2[1])-Math.abs(p2[0]-p1[0])*0.22-8;
+  const clampX=x=>Math.min(RM.W-44,Math.max(44,x));
+  const txt=(x,y,s)=>`<text x="${clampX(x).toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A" stroke="#fff" stroke-width="3" paint-order="stroke" font-family="Pretendard,sans-serif">${escapeHtml(s)}</text>`;
+  const place=(t.city||(ci?ci.ko:""))+(ci?" ("+ci.ko+")":"");
+  return `<svg class="dd-map" viewBox="0 0 ${RM.W} ${RM.H}" role="img" aria-label="여행 경로 지도">
+    <rect width="${RM.W}" height="${RM.H}" fill="#CFE3EF"/>
+    <path d="${worldPathD()}" fill="#F3EEDF" stroke="#D8D0BD" stroke-width=".4"/>
+    ${far?`<path d="M${p1[0].toFixed(1)} ${p1[1].toFixed(1)}Q${cx.toFixed(1)} ${cy.toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}" fill="none" stroke="#FF6FB7" stroke-width="1.6" stroke-dasharray="4 3" stroke-linecap="round"/>
+    <circle cx="${p1[0].toFixed(1)}" cy="${p1[1].toFixed(1)}" r="3.6" fill="#FF6FB7" stroke="#fff" stroke-width="1.2"/>
+    ${txt(p1[0],p1[1]+17,"인천 (한국)")}`:""}
+    <circle cx="${p2[0].toFixed(1)}" cy="${p2[1].toFixed(1)}" r="3.6" fill="#B5483D" stroke="#fff" stroke-width="1.2"/>
+    ${txt(p2[0],p2[1]-9,place)}
+  </svg>`;
+}
+
+function renderDiaryDetail(){
+  const el=document.getElementById("diaryDetail");
+  const t=state.trips.find(x=>x.id===diaryId);
+  if(!t){closeDiary();return;}
+  const ci=countryInfo(t.countryCode);
+  const country=ci?ci.ko:t.countryCode;
+  const place=t.city||country;
+  const a=parseFullDate(t.start),b=parseFullDate(t.end)||a;
+  const airlines=[...new Set((t.flights||[]).map(f=>f.airline).filter(Boolean))];
+  const period=fmtRange(t.start,t.end)+((a&&b&&b>=a)?`<br><small style="color:var(--ink-faint);font-weight:500">${dayCount(t.start,t.end)}일간</small>`:"");
+  const info=[["여행 기간",period],["방문 도시",escapeHtml(t.city||"-")],["방문 국가",escapeHtml(country)]];
+  if(airlines.length)info.push(["항공사",escapeHtml(airlines.join(", "))]);
+  if(t.companion)info.push(["동행",escapeHtml(t.companion)]);
+  info.push(["목적",escapeHtml(t.purpose||"여행")]);
+  if(t.rating)info.push(["만족도","★".repeat(t.rating)+"☆".repeat(5-t.rating)]);
+  const rows=diaryTimeline(t);
+  el.innerHTML=`<div class="dd-wrap">
+    <button class="dd-back" onclick="closeDiary()">← 목록으로 돌아가기</button>
+    <div class="dd-grid">
+      <div>
+        <div class="dd-title">${escapeHtml(place)} 여행기록</div>
+        <div class="dd-sub">${escapeHtml(t.dSub||"잊지 못할 순간들을 모아둔 기록")}</div>
+        ${t.dTitle?`<div class="dd-tag">〈 ${escapeHtml(t.dTitle)} 〉</div>`:""}
+        ${diaryDayStrip(t)}
+        ${rows.length?`<div class="dd-sec">여행 타임라인</div>${rows.map(r=>`<div class="dd-line">${r}</div>`).join("")}`:""}
+      </div>
+      <div>
+        <div class="dd-card"><h3>여행 정보</h3>${info.map(r=>`<div class="dd-row"><label>${r[0]}</label><span>${r[1]}</span></div>`).join("")}</div>
+        <div class="dd-card"><h3>여행 경로</h3>${routeMapSVG(t)}</div>
+        ${t.memo?`<div class="dd-postit">${escapeHtml(t.memo)}</div><div class="dd-city">${escapeHtml(place)}</div>`:""}
+      </div>
+    </div>
+    <div class="dd-actions">
+      <button class="btn-edit" onclick="editTrip('${t.id}')">수정</button>
+      <button class="btn-delete" onclick="deleteTrip('${t.id}')">삭제</button>
+    </div>
+  </div>`;
+}
+
+/* ====================================================================
    INIT
 ==================================================================== */
 initMap();
 updateCounters();
 renderMarkers();
+renderDiary();
 if(syncConfig){
   jsonbinFetch(syncConfig.apiKey,syncConfig.binId).then(remote=>{
     if(remote && Array.isArray(remote.trips)){
@@ -1741,6 +1963,7 @@ if(syncConfig){
       updateCounters();
       refreshMapStyle();
       renderMarkers();
+      renderDiary();
       renderTimeline();renderStats();renderFlights();
     }
   }).catch(()=>{ /* offline — keep showing the local cached copy */ });

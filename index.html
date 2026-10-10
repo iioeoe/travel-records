@@ -34,7 +34,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&family=Oswald:wght@500;700&family=Special+Elite&family=Permanent+Marker&family=Modak&family=Bagel+Fat+One&family=Dokdo&family=Darumadrop+One&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&family=Oswald:wght@500;700&family=Special+Elite&family=Permanent+Marker&family=Modak&family=Bagel+Fat+One&family=Dokdo&family=Darumadrop+One&family=Noto+Sans+KR:wght@400;500;600&family=Gamja+Flower&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
@@ -517,7 +517,7 @@ a{color:inherit;}
 .dd-back{border:0;background:none;color:var(--ink);font-size:13.5px;font-weight:600;padding:6px 0;}
 .dd-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:6px;}
 @media (min-width:768px){.dd-grid{grid-template-columns:1.25fr 1fr;gap:26px;align-items:start;}}
-.dd-title{position:relative;isolation:isolate;font-family:'Darumadrop One','Dokdo',sans-serif;font-weight:800;font-size:clamp(41px,11.3vw,65px);line-height:1.1;margin:36px 0 8px;padding-top:6px;word-break:keep-all;}
+.dd-title{position:relative;isolation:isolate;font-family:'Darumadrop One','Dokdo',sans-serif;font-weight:800;font-size:clamp(41px,11.3vw,65px);line-height:1.1;margin:36px 0 18px;padding-top:6px;word-break:keep-all;}
 .dd-title .fg{position:relative;display:block;color:var(--ink);}
 .dd-title .mid,.dd-title .bg{position:absolute;left:0;right:0;top:6px;filter:url(#ddSmooth);}
 .dd-title .mid{z-index:-1;color:#fff;-webkit-text-stroke:8px #fff;}
@@ -533,15 +533,19 @@ a{color:inherit;}
 .dd-sec{font-family:'Jua',var(--font-body);font-size:18px;margin:22px 0 8px;display:inline-block;border-bottom:3px solid #FF9AC9;line-height:1.2;}
 .dd-line{font-family:'Gaegu',cursive;font-weight:700;font-size:20px;line-height:34px;padding-left:10px;color:var(--ink);}
 .dd-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow-sm);margin-bottom:16px;}
-.dd-card h3{display:inline-flex;align-items:center;gap:6px;font-family:'Jua',var(--font-body);font-size:18px;font-weight:400;margin-bottom:10px;border-bottom:3px solid #FF9AC9;line-height:1.3;}
-.dd-row{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;}
+.dd-card h3{display:inline-block;margin:0;font-family:'Jua',var(--font-body);font-size:18px;font-weight:400;border-bottom:3px solid #FF9AC9;line-height:1.3;}
+.dd-ch{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.dd-ch svg{flex:0 0 auto;}
+.dd-heart{margin-left:auto;display:flex;transform:rotate(12deg);}
+.dd-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px;font-family:'Noto Sans KR',sans-serif;}
+.dd-row .ri{flex:0 0 20px;display:flex;padding-top:1px;}
 .dd-row:last-child{border-bottom:0;}
 .dd-row label{width:64px;flex:0 0 auto;color:var(--ink-faint);}
 .dd-row span{font-weight:600;}
 .dd-map{width:100%;display:block;border-radius:10px;}
 .dd-postit{position:relative;margin-top:22px;padding:22px 18px 18px;background:#FDE3EC;border-radius:6px;transform:rotate(-2deg);box-shadow:var(--shadow-sm);font-family:'Gaegu',cursive;font-weight:700;font-size:19px;line-height:1.5;color:var(--ink);white-space:pre-wrap;}
 .dd-postit::before{content:"";position:absolute;top:-10px;left:50%;width:70px;height:20px;transform:translateX(-50%);background:rgba(255,111,183,.45);}
-.dd-city{font-family:'Gaegu',cursive;font-weight:700;font-size:26px;color:#FF6FB7;text-align:right;margin-top:10px;}
+.dd-city{font-family:'Gaegu',cursive;font-weight:700;font-size:26px;color:#FF6FB7;text-align:right;margin-top:10px;margin-bottom:18px;}
 .dd-actions{display:flex;gap:8px;margin-top:26px;}
 .dd-actions button{flex:1;padding:12px;border-radius:999px;font-size:13px;font-weight:700;}
 
@@ -1940,9 +1944,9 @@ function routeMapSVG(t){
   const f=n=>n.toFixed(1);
   const clampX=x=>Math.min(RM.W-34,Math.max(34,x));
   const lab=(p,l1,l2)=>{
-    const below=p[1]+34<RM.H;
-    const y=below?p[1]+15:p[1]-(l2?24:12);
-    return `<text text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A" stroke="#fff" stroke-width="3" paint-order="stroke" font-family="Pretendard,sans-serif"><tspan x="${f(clampX(p[0]))}" y="${f(y)}">${escapeHtml(l1)}</tspan>${l2?`<tspan x="${f(clampX(p[0]))}" dy="12.5">(${escapeHtml(l2)})</tspan>`:""}</text>`;
+    const below=p[1]+36<RM.H;
+    const y=below?p[1]+16:p[1]-(l2?26:12);
+    return `<text text-anchor="middle" font-size="13.5" fill="#1B2A4A" stroke="#fff" stroke-width="3.5" paint-order="stroke" font-family="'Gamja Flower',cursive"><tspan x="${f(clampX(p[0]))}" y="${f(y)}">${escapeHtml(l1)}</tspan>${l2?`<tspan x="${f(clampX(p[0]))}" dy="14">(${escapeHtml(l2)})</tspan>`:""}</text>`;
   };
   const pin=p=>`<circle cx="${f(p[0])}" cy="${f(p[1])}" r="4.6" fill="#FF6FB7" stroke="#fff" stroke-width="1.6"/>`;
   const country=ci?ci.ko:"";
@@ -1952,13 +1956,13 @@ function routeMapSVG(t){
   const plane=far?`<g transform="translate(${f(mx)} ${f(my)}) rotate(${f(ang)}) scale(1.1) translate(-12 -12.5)"><path d="${PLANE}" fill="none" stroke="#fff" stroke-width="4.5" stroke-linejoin="round"/><path d="${PLANE}" fill="#FFE3F1" stroke="#FF6FB7" stroke-width="1.6" stroke-linejoin="round"/></g>`:"";
   /* 손그림 나침판 + 낙서 웃는 얼굴 */
   const kx=RM.W-30,ky=RM.H-30,N="#1B2A4A";
-  const compass=`<g font-family="Pretendard,sans-serif" font-weight="700" font-size="7.5" fill="${N}" text-anchor="middle">
+  const compass=`<g font-family="'Gaegu',cursive" font-weight="700" font-size="9.5" fill="${N}" text-anchor="middle">
     <circle cx="${kx}" cy="${ky}" r="13" fill="rgba(255,255,255,.7)"/>
     <path d="M${kx-13} ${ky}C${kx-13} ${ky-7.5} ${kx-7} ${ky-13.4} ${kx+.5} ${ky-13}S${kx+13.2} ${ky-7} ${kx+13} ${ky+.5}S${kx+7} ${ky+13.3} ${kx-.5} ${ky+13.2}S${kx-13.3} ${ky+7} ${kx-13} ${ky}Z" fill="none" stroke="${N}" stroke-width="1.4" stroke-linecap="round"/>
     <path d="M${kx} ${ky-10}L${kx+3.2} ${ky}L${kx-3.2} ${ky}Z" fill="#FF6FB7"/>
     <path d="M${kx} ${ky+10}L${kx+3.2} ${ky}L${kx-3.2} ${ky}Z" fill="#fff" stroke="${N}" stroke-width=".9" stroke-linejoin="round"/>
-    <text x="${kx}" y="${ky-16.5}">N</text><text x="${kx}" y="${ky+23.5}">S</text>
-    <text x="${kx+19.5}" y="${ky+2.6}">E</text><text x="${kx-19.5}" y="${ky+2.6}">W</text>
+    <text x="${kx}" y="${ky-16.5}">N</text><text x="${kx}" y="${ky+25}">S</text>
+    <text x="${kx+20}" y="${ky+3.4}">E</text><text x="${kx-20}" y="${ky+3.4}">W</text>
     <g transform="translate(${kx-52} ${ky+6})" fill="none" stroke="${N}" stroke-width="1.2" stroke-linecap="round">
       <circle r="6.5"/><circle cx="-2.3" cy="-1.6" r=".7" fill="${N}"/><circle cx="2.3" cy="-1.6" r=".7" fill="${N}"/>
       <path d="M-3.2 1.8Q0 5 3.2 1.8"/><path d="M-11 -4l-3-1.5M-11.5 1l-3.2.4M11 -4l3-1.5M11.5 1l3.2.4"/>
@@ -2025,7 +2029,21 @@ function deletePacking(i){
 })();
 
 const CHECK_SVG='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
-const PIN_SVG='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1B2A4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
+const PIN_SVG='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#1B2A4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
+
+const BAG_SVG='<svg viewBox="0 0 28 28" width="30" height="30" fill="none" stroke="#1B2A4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="20" height="14" rx="4"/><path d="M10 8V6.5A2 2 0 0 1 12 4.5h4a2 2 0 0 1 2 2V8"/><path d="M9 22v2M19 22v2"/><path d="M9.5 8v14M18.5 8v14" stroke-width="1.4"/><path d="M14 18.2c-2.4-1.6-3.2-2.7-3.2-3.8a1.7 1.7 0 0 1 3.2-.7 1.7 1.7 0 0 1 3.2.7c0 1.1-.8 2.2-3.2 3.8z" fill="#FF6FB7" stroke="none"/></svg>';
+const DASH_SVG='<svg viewBox="0 0 16 14" width="16" height="14" fill="none" stroke="#FF6FB7" stroke-width="1.8" stroke-linecap="round" style="align-self:flex-start;margin-top:-4px" aria-hidden="true"><path d="M2 4l6-2M3 10l6 .6"/></svg>';
+const HEART_SVG='<svg viewBox="0 0 24 24" width="22" height="22" fill="#FF6FB7" aria-hidden="true"><path d="M12 20.5C5 15.5 3 12 3 9a4.5 4.5 0 0 1 9-1.2A4.5 4.5 0 0 1 21 9c0 3-2 6.5-9 11.5z"/></svg>';
+const RI=d=>'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#1B2A4A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d+'</svg>';
+const ROW_ICONS={
+  "여행 기간":RI('<rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M8 3.5v4M16 3.5v4M4 10h16"/>'),
+  "방문 도시":RI('<path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>'),
+  "방문 국가":RI('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>'),
+  "항공사":RI('<g transform="translate(12 12) rotate(45) scale(.85) translate(-12 -12.5)"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></g>'),
+  "동행":RI('<circle cx="12" cy="12" r="9"/><path d="M8.5 14c1 1.6 2.2 2.4 3.5 2.4s2.5-.8 3.5-2.4M9 9.5v.5M15 9.5v.5"/>'),
+  "목적":RI('<path d="M6 21V4M6 5h11l-2 3.5 2 3.5H6"/>'),
+  "만족도":RI('<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9l-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/>')
+};
 
 function renderDiaryDetail(){
   const el=document.getElementById("diaryDetail");
@@ -2073,10 +2091,10 @@ function renderDiaryDetail(){
     <section class="dd-page${on(2)}">
       <div class="dd-grid">
         <div>
-          <div class="dd-card"><h3>여행 정보</h3>${info.map(r=>`<div class="dd-row"><label>${r[0]}</label><span>${r[1]}</span></div>`).join("")}</div>
           ${t.memo?`<div class="dd-postit">${escapeHtml(t.memo)}</div><div class="dd-city">${escapeHtml(place)}</div>`:""}
+          <div class="dd-card"><div class="dd-ch">${BAG_SVG}<h3>여행 정보</h3>${DASH_SVG}<span class="dd-heart">${HEART_SVG}</span></div>${info.map(r=>`<div class="dd-row"><i class="ri">${ROW_ICONS[r[0]]||""}</i><label>${r[0]}</label><span>${r[1]}</span></div>`).join("")}</div>
         </div>
-        <div class="dd-card"><h3>${PIN_SVG}여행 경로</h3>${routeMapSVG(t)}</div>
+        <div class="dd-card"><div class="dd-ch">${PIN_SVG}<h3>여행 경로</h3>${DASH_SVG}</div>${routeMapSVG(t)}</div>
       </div>
       <div class="dd-actions">
         <button class="btn-edit" onclick="editTrip('${t.id}')">수정</button>

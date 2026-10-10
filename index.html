@@ -34,7 +34,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&family=Oswald:wght@500;700&family=Special+Elite&family=Permanent+Marker&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&family=Oswald:wght@500;700&family=Special+Elite&family=Permanent+Marker&family=Modak&family=Bagel+Fat+One&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
@@ -517,7 +517,8 @@ a{color:inherit;}
 .dd-back{border:0;background:none;color:var(--ink);font-size:13.5px;font-weight:600;padding:6px 0;}
 .dd-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:6px;}
 @media (min-width:768px){.dd-grid{grid-template-columns:1.25fr 1fr;gap:26px;align-items:start;}}
-.dd-title{font-family:'Jua',var(--font-body);font-size:50px;line-height:1.2;color:var(--ink);paint-order:stroke fill;-webkit-text-stroke:7px #fff;margin:10px 0 4px;word-break:keep-all;}
+.dd-title{position:relative;isolation:isolate;font-family:'Modak','Bagel Fat One',sans-serif;font-size:clamp(38px,10.5vw,60px);line-height:1.1;color:var(--ink);paint-order:stroke fill;-webkit-text-stroke:8px #fff;margin:14px 0 8px;padding-top:6px;word-break:keep-all;}
+.dd-title::before{content:attr(data-t);position:absolute;left:0;right:0;top:6px;z-index:-1;color:var(--ink);-webkit-text-stroke:15px var(--ink);}
 .dd-sub{font-family:'Gaegu',cursive;font-weight:700;font-size:20px;color:var(--ink);}
 .dd-tag{font-family:'Jua',var(--font-body);font-size:26px;color:#FF6FB7;margin:36px 0 8px;}
 .dy-strip{display:flex;overflow-x:auto;background:#E9F0FA;border-radius:14px;padding:8px 4px;}
@@ -696,6 +697,7 @@ a{color:inherit;}
         </div>
 
         <div class="section-title">여행기록 (선택)</div>
+        <div class="field"><label>제목 도시명 (영문 추천, 비우면 도시 이름 사용)</label><input id="f_dcity" type="text" placeholder="예: New York"></div>
         <div class="field"><label>말머리</label><input id="f_dtitle" type="text" placeholder="예: 휴가 7 days"></div>
         <div class="field"><label>부제목</label><input id="f_dsub" type="text" placeholder="예: 잊지 못할 순간들을 모아둔 기록"></div>
         <div class="field"><label>일정 메모 (한 줄에 하나)</label><textarea id="f_dlines" placeholder="예: 11/28 00:15 출발"></textarea></div>
@@ -1569,6 +1571,7 @@ window.editTrip=function(id){
   document.getElementById("f_lat").value=t.lat!=null?t.lat:"";
   document.getElementById("f_lng").value=t.lng!=null?t.lng:"";
   document.getElementById("f_memo").value=t.memo||"";
+  document.getElementById("f_dcity").value=t.dCity||"";
   document.getElementById("f_dtitle").value=t.dTitle||"";
   document.getElementById("f_dsub").value=t.dSub||"";
   document.getElementById("f_dlines").value=t.dLines||"";
@@ -1615,6 +1618,7 @@ tripForm.addEventListener("submit",e=>{
     rating:currentRating,
     photo:currentPhoto,
     flights:collectFlights(),
+    dCity:document.getElementById("f_dcity").value.trim(),
     dTitle:document.getElementById("f_dtitle").value.trim(),
     dSub:document.getElementById("f_dsub").value.trim(),
     dLines:document.getElementById("f_dlines").value.trim(),
@@ -1925,11 +1929,12 @@ function renderDiaryDetail(){
   info.push(["목적",escapeHtml(t.purpose||"여행")]);
   if(t.rating)info.push(["만족도","★".repeat(t.rating)+"☆".repeat(5-t.rating)]);
   const rows=diaryTimeline(t);
+  const titleText="To. "+String(t.dCity||place).toUpperCase();
   el.innerHTML=`<div class="dd-wrap">
     <button class="dd-back" onclick="closeDiary()">← 목록으로 돌아가기</button>
     <div class="dd-grid">
       <div>
-        <div class="dd-title">${escapeHtml(place)} 여행기록</div>
+        <div class="dd-title" data-t="${escapeAttr(titleText)}">${escapeHtml(titleText)}</div>
         <div class="dd-sub">${escapeHtml(t.dSub||"잊지 못할 순간들을 모아둔 기록")}</div>
         ${t.dTitle?`<div class="dd-tag">〈 ${escapeHtml(t.dTitle)} 〉</div>`:""}
         ${diaryDayStrip(t)}

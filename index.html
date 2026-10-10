@@ -2094,4 +2094,7 @@ if(syncConfig){
     }
   }).catch(()=>{ /* offline — keep showing the local cached copy */ });
 }
-window.addEventL
+window.addEventListener("load",()=>{setTimeout(()=>{if(map){map.invalidateSize();applyMapFit(true);}},200);});
+</script>
+</body>
+</html>

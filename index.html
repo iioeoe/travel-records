@@ -1901,9 +1901,9 @@ function stampSVG(v,t){
        <rect x="10" y="10" width="340" height="140" rx="3" stroke-width="4"/>
        <rect x="18" y="20" width="110" height="120" fill="currentColor" stroke="none"/>
        <g transform="translate(60 62) rotate(-45) scale(3) translate(-12 -12.5)" fill="#F4F1EA" stroke="none"><path d="${PLANE_D}"/></g>
-       ${sxT(city,138,66,50,{a:"start",b:1,f:F_OS,max:230})}
+       ${sxT(city,138,75,50,{a:"start",b:1,f:F_OS,max:230})}
        ${sxT(g?g[0]+"/"+g[1]:"",138,90,15,{a:"start",f:F_COND,ls:.5,max:140})}${sxT(cEn,340,90,15,{a:"end",f:F_COND,max:92})}
-       ${sxT("TRAVEL",138,116,20,{a:"start",f:F_COND,max:110})}
+       ${sxT("TRAVEL",138,140,20,{a:"start",f:F_COND,max:110})}
        ${sxT(dt?"DATE: "+dt:"",346,tm?93:101,12,{a:"end",f:F_COND})}${tm?sxT("TIME: "+tm,346,109,12,{a:"end",f:F_COND}):""}`);
   }
   if(v===1){ /* 보스턴: 둥근 사각형 + 비행기 */

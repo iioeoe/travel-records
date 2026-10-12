@@ -1917,12 +1917,12 @@ function stampSVG(v,t){
        <circle cx="32" cy="212" r="3.4" fill="currentColor" stroke="none"/><circle cx="48" cy="212" r="3.4" fill="currentColor" stroke="none"/><circle cx="64" cy="212" r="3.4" fill="currentColor" stroke="none"/>
        ${sxT(stampDate(t,"s"),212,188,17,{a:"end",f:F_COND})}${sxT("DEPARTED",212,212,19,{a:"end",f:F_COND,ls:.5})}`);
   }
-  if(v===2){ /* 푸에르토플라타: 아치 이중 테두리 + 크루즈선 */
-    return wrap("0 0 260 240",
+  if(v===2){ /* 푸에르토플라타: 아치 이중 테두리 + 비행기 */
+    return wrap("0 0 280 240",
       `<path d="M22 222V108C22 58 70 22 130 22S238 58 238 108V222Z" stroke-width="6"/>
        <path d="M36 210V110C36 70 76 40 130 40S224 70 224 110V210Z" stroke-width="2.6"/>
        ${plane("translate(130 60) rotate(45) scale(1.45) translate(-12 -12.5)")}
-       ${sxT("ARRIVAL",130,102,26,{b:1,f:F_COND,max:130})}${sxT(stampDate(t,"dot"),130,126,22,{f:F_COND,max:140})}
+       ${sxT("ARRIVAL",130,102,22,{b:1,f:F_COND,max:130})}${sxT(stampDate(t,"dot"),130,126,22,{f:F_COND,max:140})}
        <path d="M40 135H220" stroke-width="2.4"/>
        ${sxT(city,130,168,34,{b:1,f:F_COND,max:176})}${sxT(cEn,130,198,17,{b:1,f:F_COND,max:176})}`);
   }

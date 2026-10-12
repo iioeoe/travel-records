@@ -1920,7 +1920,7 @@ function stampSVG(v,t){
   if(v===2){ /* 3. 푸에르토플라타: 아치 이중 테두리 + 비행기 */
     return wrap("0 0 260 240",
       `<path d="M12 222V108C12 58 60 22 130 22S248 58 248 108V222Z" stroke-width="6"/>
-       <path d="M26 210V110C26 70 66 39 130 39S234 70 234 110V210Z" stroke-width="2.6"/>
+       <path d="M26 210V110C26 70 66 38 130 38S234 70 234 110V210Z" stroke-width="2.6"/>
        ${plane("translate(130 56) rotate(45) scale(1.45) translate(-12 -12.5)")}
        ${sxT("TRAVEL",130,92,20,{b:1,f:F_COND,max:130})}${sxT(stampDate(t,"dot"),130,116,21,{f:F_COND,max:140})}
        <path d="M43 124H217" stroke-width="2.4"/>

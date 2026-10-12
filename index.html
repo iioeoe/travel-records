@@ -1933,7 +1933,7 @@ function stampSVG(v,t){
        ${sxT(cEn,160,54,17,{f:F_COND,ls:1,max:220})}
        ${sxT("★",68,80,15)}${sxT("JOURNEY",160,81,23,{b:1,f:F_COND})}${sxT("★",252,80,15)}
        <path d="M62 88H258" stroke-width="1.6"/>
-       ${sxT(city,160,143,50,{b:1,f:F_COND,max:232})}${sxT(stampDate(t,"long"),160,166,16,{f:F_COND,ls:.5,max:200})}`);
+       ${sxT(city,160,142,50,{b:1,f:F_COND,max:232})}${sxT(stampDate(t,"long"),160,166,16,{f:F_COND,ls:.5,max:200})}`);
   }
   if(v===4){ /* 런던: 이중 타원 + 양옆 비행기 */
     return wrap("0 0 320 190",
@@ -1946,11 +1946,11 @@ function stampSVG(v,t){
   return wrap("0 0 300 180",
     `<rect x="6" y="6" width="288" height="168" rx="18" stroke-width="3" stroke-dasharray="8 5"/>
      <rect x="18" y="18" width="264" height="144" rx="12" stroke-width="5"/>
-     ${sxT(city,150,62,40,{b:1,f:F_SLAB,max:236})}
+     ${sxT(city,150,63,40,{b:1,f:F_SLAB,max:236})}
      ${sxT(code,34,90,14,{a:"start",b:1,f:F_SLAB})}${sxT(geoDigits(t)?geoDigits(t)[0]+geoDigits(t)[1]:"",266,90,13,{a:"end",f:F_TYPE,max:130})}
      <path d="M32 100H268" stroke-width="3"/>
      ${sxT("★",46,150,38,{f:F_COND})}${sxT("★",254,150,38,{f:F_COND})}
-     ${sxT("DEPARTURE",150,128,22,{b:1,f:F_SLAB,max:120})}${sxT(stampDate(t,"s"),150,152,16,{f:F_TYPE,max:110})}`);
+     ${sxT("MEMORIES",150,128,22,{b:1,f:F_SLAB,max:120})}${sxT(stampDate(t,"s"),150,152,16,{f:F_TYPE,max:110})}`);
 }
 
 function renderDiary(){

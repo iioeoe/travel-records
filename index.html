@@ -1907,9 +1907,9 @@ function stampSVG(v,t){
        ${sxT(dt?"DATE: "+dt:"",340,tm?116:132,13,{a:"end",f:F_COND})}${tm?sxT("TIME: "+tm,340,132,13,{a:"end",f:F_COND}):""}`);
   }
   if(v===1){ /* 2. 싱가포르형: 이중 둥근 사각형 + 날짜 점선 박스 + 큰 이름 + TRAVEL + 비행기 원 */
-    return wrap("0 0 260 260",
-      `<rect x="6" y="6" width="248" height="248" rx="36" stroke-width="3.5"/>
-       <rect x="16" y="16" width="228" height="228" rx="28" stroke-width="5"/>
+    return wrap("0 0 240 240",
+      `<rect x="6" y="6" width="228" height="228" rx="36" stroke-width="3.5"/>
+       <rect x="16" y="16" width="208" height="208" rx="28" stroke-width="5"/>
        <rect x="44" y="40" width="172" height="42" stroke-width="3.5" stroke-dasharray="9 6" stroke-linecap="butt"/>
        ${sxT(stampDate(t,"s"),130,70,24,{f:F_COND,max:156})}
        ${sxT(city,130,137,50,{b:1,f:F_OS,ls:1,max:196})}

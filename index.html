@@ -501,7 +501,7 @@ a{color:inherit;}
 .st{position:relative;display:block;width:100%;max-width:230px;padding:0;border:0;background:none;color:var(--k);transform:rotate(var(--r));}
 .st.wide{max-width:300px;}
 .st svg{display:block;width:100%;height:auto;overflow:visible;}
-@media (max-width:767px){.st.wide{grid-column:span 2;}}
+@media (max-width:767px){.st.wide{grid-column:span 2;}.st{width:calc(100% - 10px);max-width:220px;}.st.wide{max-width:290px;}}
 @media (min-width:768px){.st{max-width:220px;}.st.wide{max-width:270px;}}
 
 .diary-detail{position:absolute;inset:0;z-index:6;overflow-y:auto;display:none;-webkit-overflow-scrolling:touch;background-color:#FBFAF6;background-image:repeating-linear-gradient(#FBFAF6 0 33px,#ECE8DE 33px 34px);}

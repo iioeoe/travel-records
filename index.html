@@ -1906,16 +1906,17 @@ function stampSVG(v,t){
        ${sxT("TRAVEL",138,132,22,{a:"start",f:F_COND,max:100})}
        ${sxT(dt?"DATE: "+dt:"",340,tm?116:132,13,{a:"end",f:F_COND})}${tm?sxT("TIME: "+tm,340,132,13,{a:"end",f:F_COND}):""}`);
   }
-  if(v===1){ /* 보스턴: 둥근 사각형 + 비행기 */
-    return wrap("-9 -9 258 258",
-      `<rect x="-5" y="-5" width="250" height="250" rx="44" stroke-width="1.8"/>
-       <rect x="6" y="6" width="228" height="228" rx="34" stroke-width="7"/>
-       ${plane("translate(120 46) rotate(45) scale(2.1) translate(-12 -12.5)")}
-       <path d="M24 84H216M24 152H216" stroke-width="5" opacity=".6"/>
-       ${sxT(city,120,136,50,{b:1,f:F_OS,max:188})}
-       ${sxT(code,28,196,26,{a:"start",b:1,f:F_OS})}
-       <circle cx="32" cy="212" r="3.4" fill="currentColor" stroke="none"/><circle cx="48" cy="212" r="3.4" fill="currentColor" stroke="none"/><circle cx="64" cy="212" r="3.4" fill="currentColor" stroke="none"/>
-       ${sxT(stampDate(t,"s"),212,188,17,{a:"end",f:F_COND})}${sxT("DEPARTED",212,212,19,{a:"end",f:F_COND,ls:.5})}`);
+  if(v===1){ /* 2. 싱가포르형: 이중 둥근 사각형 + 날짜 점선 박스 + 큰 이름 + TRAVEL + 비행기 원 */
+    return wrap("0 0 260 260",
+      `<rect x="6" y="6" width="248" height="248" rx="36" stroke-width="3.5"/>
+       <rect x="16" y="16" width="228" height="228" rx="28" stroke-width="5"/>
+       <rect x="44" y="40" width="172" height="50" stroke-width="3.5" stroke-dasharray="9 6" stroke-linecap="butt"/>
+       ${sxT(stampDate(t,"s"),130,74,25,{f:F_COND,max:156})}
+       ${sxT(city,130,132,40,{b:1,f:F_OS,ls:1,max:196})}
+       ${sxT("TRAVEL",130,166,18,{f:F_COND,ls:7})}
+       ${sxT("INTERNATIONAL",34,202,15,{a:"start",f:F_COND,max:110})}${sxT("AIRPORT",34,221,15,{a:"start",f:F_COND})}
+       <circle cx="192" cy="206" r="26" fill="currentColor" stroke="none"/>
+       <g transform="translate(192 206) rotate(45) scale(2.1) translate(-12 -12.5)" fill="#F4F1EA" stroke="none"><path d="${PLANE_D}"/></g>`);
   }
   if(v===2){ /* 3. 푸에르토플라타: 아치 이중 테두리 + 비행기 */
     return wrap("0 0 260 240",

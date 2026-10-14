@@ -34,7 +34,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&family=Oswald:wght@500;700&family=Special+Elite&family=Permanent+Marker&family=Modak&family=Bagel+Fat+One&family=Dokdo&family=Darumadrop+One&family=Noto+Sans+KR:wght@400;500;600&family=Gamja+Flower&family=Roboto+Condensed:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&family=Oswald:wght@500;700&family=Special+Elite&family=Permanent+Marker&family=Modak&family=Bagel+Fat+One&family=Dokdo&family=Darumadrop+One&family=Noto+Sans+KR:wght@400;500;600&family=Gamja+Flower&family=Roboto+Condensed:wght@400;700&family=Roboto+Slab:wght@700&family=Caveat:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
@@ -538,11 +538,33 @@ a{color:inherit;}
 .dd-row label{width:64px;flex:0 0 auto;color:var(--ink-faint);}
 .dd-row span{font-weight:600;}
 .dd-map{width:100%;display:block;border-radius:10px;}
-.dd-postit{position:relative;margin-top:22px;padding:22px 18px 18px;background:#FDE3EC;border-radius:6px;transform:rotate(-2deg);box-shadow:var(--shadow-sm);font-family:'Gaegu',cursive;font-weight:700;font-size:19px;line-height:1.5;color:var(--ink);}
-.dd-star{display:block;width:28px;height:auto;margin:0 0 6px;}
+
+/* ---- 포스트잇 + 도시명 (수정됨) ---- */
+.dd-note-row{display:flex;align-items:center;gap:8px;margin-top:26px;}
+.dd-postit{
+  position:relative;flex:0 0 62%;min-height:150px;
+  padding:28px 16px 20px;background:#FDE3EC;border-radius:8px;
+  transform:rotate(-3deg);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;
+  font-family:'Gaegu',cursive;font-weight:700;
+  font-size:19px;line-height:1.7;color:var(--ink);
+}
+.dd-postit::before{
+  content:"";position:absolute;top:-10px;left:28%;
+  width:70px;height:20px;background:rgba(255,111,183,.45);
+}
+.dd-star{position:absolute;top:16px;left:14px;width:26px;height:auto;margin:0;}
 .dd-memo{white-space:pre-wrap;}
-.dd-postit::before{content:"";position:absolute;top:-10px;left:50%;width:70px;height:20px;transform:translateX(-50%);background:rgba(255,111,183,.45);}
-.dd-city{font-family:'Gaegu',cursive;font-weight:700;font-size:26px;color:#FF6FB7;text-align:right;margin-top:10px;margin-bottom:18px;}
+.dd-smile{position:absolute;right:12px;bottom:10px;width:30px;height:auto;mix-blend-mode:multiply;}
+.dd-side{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;}
+.dd-plane{width:100%;max-width:110px;height:auto;}
+.dd-city{
+  font-family:'Caveat','Gaegu',cursive;
+  font-weight:700;font-size:36px;line-height:1.1;color:#FF6FB7;
+  text-align:center;margin:6px 0 0;transform:rotate(-8deg);
+  text-decoration:underline wavy #FF6FB7;text-underline-offset:6px;
+}
 .dd-actions{display:flex;gap:8px;margin-top:26px;}
 .dd-actions button{flex:1;padding:12px;border-radius:999px;font-size:13px;font-weight:700;}
 
@@ -2201,7 +2223,20 @@ function renderDiaryDetail(){
     <section class="dd-page${on(2)}">
       <div class="dd-grid">
         <div>
-          ${t.memo?`<div class="dd-postit"><img class="dd-star" src="star_blue.png" alt="" onerror="this.style.display='none'"><div class="dd-memo">${escapeHtml(t.memo)}</div></div><div class="dd-city">${escapeHtml(place)}</div>`:""}
+          ${t.memo?`<div class="dd-note-row">
+            <div class="dd-postit">
+              <img class="dd-star" src="star_blue.png" alt="" onerror="this.style.display='none'">
+              <div class="dd-memo">${escapeHtml(t.memo)}</div>
+              <img class="dd-smile" src="smile_blue.png" alt="" onerror="this.style.display='none'">
+            </div>
+            <div class="dd-side">
+              <svg class="dd-plane" viewBox="0 0 110 50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 44Q20 40 40 32" stroke="#1B2A4A" stroke-width="2" stroke-dasharray="4 4"/>
+                <g transform="translate(75 22) rotate(45) scale(1.5) translate(-12 -12.5)"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z" fill="#fff" stroke="#2F6FD0" stroke-width="1.6"/></g>
+              </svg>
+              <div class="dd-city">${escapeHtml(t.dCity||place)}</div>
+            </div>
+          </div>`:""}
           <div class="dd-card"><div class="dd-ch">${BAG_SVG}<h3>여행 정보</h3>${DASH_SVG}<span class="dd-heart"><img src="heart_pink2.png" alt="" onerror="this.style.display='none'"></span></div>${info.map(r=>`<div class="dd-row"><i class="ri">${ROW_ICONS[r[0]]||""}</i><label>${r[0]}</label><span>${r[1]}</span></div>`).join("")}</div>
         </div>
         <div class="dd-card"><div class="dd-ch">${PIN_SVG}<h3>여행 경로</h3>${DASH_SVG}</div>${routeMapSVG(t)}</div>

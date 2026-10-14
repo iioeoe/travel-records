@@ -530,14 +530,17 @@ a{color:inherit;}
 .dd-card h3,.dd-ch h3{display:inline-block;margin:0;font-family:'Jua',var(--font-body);font-size:18px;font-weight:400;border-bottom:3px solid #FF9AC9;line-height:1.3;}
 .dd-ch{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
 .dd-ch svg{flex:0 0 auto;}
-.dd-heart{margin-left:auto;display:flex;transform:rotate(12deg);}
+.dd-heart{margin-left:auto;display:flex;}
+.dd-heart img{display:block;width:22px;height:auto;}
 .dd-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px;font-family:'Noto Sans KR',sans-serif;}
 .dd-row .ri{flex:0 0 20px;display:flex;padding-top:1px;}
 .dd-row:last-child{border-bottom:0;}
 .dd-row label{width:64px;flex:0 0 auto;color:var(--ink-faint);}
 .dd-row span{font-weight:600;}
 .dd-map{width:100%;display:block;border-radius:10px;}
-.dd-postit{position:relative;margin-top:22px;padding:22px 18px 18px;background:#FDE3EC;border-radius:6px;transform:rotate(-2deg);box-shadow:var(--shadow-sm);font-family:'Gaegu',cursive;font-weight:700;font-size:19px;line-height:1.5;color:var(--ink);white-space:pre-wrap;}
+.dd-postit{position:relative;margin-top:22px;padding:22px 18px 18px;background:#FDE3EC;border-radius:6px;transform:rotate(-2deg);box-shadow:var(--shadow-sm);font-family:'Gaegu',cursive;font-weight:700;font-size:19px;line-height:1.5;color:var(--ink);}
+.dd-star{display:block;width:28px;height:auto;margin:0 0 6px;}
+.dd-memo{white-space:pre-wrap;}
 .dd-postit::before{content:"";position:absolute;top:-10px;left:50%;width:70px;height:20px;transform:translateX(-50%);background:rgba(255,111,183,.45);}
 .dd-city{font-family:'Gaegu',cursive;font-weight:700;font-size:26px;color:#FF6FB7;text-align:right;margin-top:10px;margin-bottom:18px;}
 .dd-actions{display:flex;gap:8px;margin-top:26px;}
@@ -2198,8 +2201,8 @@ function renderDiaryDetail(){
     <section class="dd-page${on(2)}">
       <div class="dd-grid">
         <div>
-          ${t.memo?`<div class="dd-postit">${escapeHtml(t.memo)}</div><div class="dd-city">${escapeHtml(place)}</div>`:""}
-          <div class="dd-card"><div class="dd-ch">${BAG_SVG}<h3>여행 정보</h3>${DASH_SVG}<span class="dd-heart">${HEART_SVG}</span></div>${info.map(r=>`<div class="dd-row"><i class="ri">${ROW_ICONS[r[0]]||""}</i><label>${r[0]}</label><span>${r[1]}</span></div>`).join("")}</div>
+          ${t.memo?`<div class="dd-postit"><img class="dd-star" src="star_blue.png" alt="" onerror="this.style.display='none'"><div class="dd-memo">${escapeHtml(t.memo)}</div></div><div class="dd-city">${escapeHtml(place)}</div>`:""}
+          <div class="dd-card"><div class="dd-ch">${BAG_SVG}<h3>여행 정보</h3>${DASH_SVG}<span class="dd-heart"><img src="heart_pink2.png" alt="" onerror="this.style.display='none'"></span></div>${info.map(r=>`<div class="dd-row"><i class="ri">${ROW_ICONS[r[0]]||""}</i><label>${r[0]}</label><span>${r[1]}</span></div>`).join("")}</div>
         </div>
         <div class="dd-card"><div class="dd-ch">${PIN_SVG}<h3>여행 경로</h3>${DASH_SVG}</div>${routeMapSVG(t)}</div>
       </div>

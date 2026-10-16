@@ -562,9 +562,12 @@ a{color:inherit;}
 .dd-city{
   font-family:'Caveat','Gaegu',cursive;
   font-weight:700;font-size:36px;line-height:1.1;color:#FF6FB7;
-  text-align:center;margin:6px 0 0;transform:rotate(-8deg);
+  text-align:right;margin:6px 16px 0 0;transform:rotate(-8deg);
   text-decoration:underline wavy #FF6FB7;text-underline-offset:6px;
-  position:relative;width:fit-content;max-width:100%;
+  position:relative;width:fit-content;
+  align-self:flex-end;
+  white-space:nowrap;
+  transform-origin:right bottom;
 }
 .dd-cstar{position:absolute;right:-12px;bottom:-16px;width:22px;height:auto;}
 .dd-actions{display:flex;gap:8px;margin-top:26px;}
